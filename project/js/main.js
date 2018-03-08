@@ -1,90 +1,28 @@
-import Player from './player/index'
-import Enemy from './npc/enemy'
-import BackGround from './runtime/background'
-import GameInfo from './runtime/gameinfo'
-import Music from './runtime/music'
-import DataBus from './databus'
-
-let ctx = canvas.getContext('2d')
-let databus = new DataBus()
-
-/**
- * 游戏主函数
- */
 export default class Main {
   constructor() {
+    this.init()
+
     // 维护当前requestAnimationFrame的id
     this.aniId = 0
-
     this.restart()
   }
 
   restart() {
-    databus.reset()
-
     canvas.removeEventListener(
       'touchstart',
       this.touchHandler
     )
 
-    this.bg = new BackGround(ctx)
-    this.player = new Player(ctx)
-    this.gameinfo = new GameInfo()
-    this.music = new Music()
-
     this.bindLoop = this.loop.bind(this)
     this.hasEventBind = false
 
     // 清除上一局的动画
-    window.cancelAnimationFrame(this.aniId);
+    window.cancelAnimationFrame(this.aniId)
 
     this.aniId = window.requestAnimationFrame(
       this.bindLoop,
       canvas
     )
-  }
-
-  /**
-   * 随着帧数变化的敌机生成逻辑
-   * 帧数取模定义成生成的频率
-   */
-  enemyGenerate() {
-    if (databus.frame % 30 === 0) {
-      let enemy = databus.pool.getItemByClass('enemy', Enemy)
-      enemy.init(6)
-      databus.enemys.push(enemy)
-    }
-  }
-
-  // 全局碰撞检测
-  collisionDetection() {
-    let that = this
-
-    databus.bullets.forEach((bullet) => {
-      for (let i = 0, il = databus.enemys.length; i < il; i++) {
-        let enemy = databus.enemys[i]
-
-        if (!enemy.isPlaying && enemy.isCollideWith(bullet)) {
-          enemy.playAnimation()
-          that.music.playExplosion()
-
-          bullet.visible = false
-          databus.score += 1
-
-          break
-        }
-      }
-    })
-
-    for (let i = 0, il = databus.enemys.length; i < il; i++) {
-      let enemy = databus.enemys[i]
-
-      if (this.player.isCollideWith(enemy)) {
-        databus.gameOver = true
-
-        break
-      }
-    }
   }
 
   // 游戏结束后的触摸事件处理逻辑
@@ -93,80 +31,10 @@ export default class Main {
 
     let x = e.touches[0].clientX
     let y = e.touches[0].clientY
-
-    let area = this.gameinfo.btnArea
-
-    if (x >= area.startX
-      && x <= area.endX
-      && y >= area.startY
-      && y <= area.endY)
-      this.restart()
-  }
-
-  /**
-   * canvas重绘函数
-   * 每一帧重新绘制所有的需要展示的元素
-   */
-  render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    this.bg.render(ctx)
-
-    databus.bullets
-      .concat(databus.enemys)
-      .forEach((item) => {
-        item.drawToCanvas(ctx)
-      })
-
-    this.player.drawToCanvas(ctx)
-
-    databus.animations.forEach((ani) => {
-      if (ani.isPlaying) {
-        ani.aniRender(ctx)
-      }
-    })
-
-    this.gameinfo.renderGameScore(ctx, databus.score)
-
-    // 游戏结束停止帧循环
-    if (databus.gameOver) {
-      this.gameinfo.renderGameOver(ctx, databus.score)
-
-      if (!this.hasEventBind) {
-        this.hasEventBind = true
-        this.touchHandler = this.touchEventHandler.bind(this)
-        canvas.addEventListener('touchstart', this.touchHandler)
-      }
-    }
-  }
-
-  // 游戏逻辑更新主函数
-  update() {
-    if (databus.gameOver)
-      return;
-
-    this.bg.update()
-
-    databus.bullets
-      .concat(databus.enemys)
-      .forEach((item) => {
-        item.update()
-      })
-
-    this.enemyGenerate()
-
-    this.collisionDetection()
-
-    if (databus.frame % 20 === 0) {
-      this.player.shoot()
-      this.music.playShoot()
-    }
   }
 
   // 实现游戏帧循环
   loop() {
-    databus.frame++
-
     this.update()
     this.render()
 
@@ -174,5 +42,100 @@ export default class Main {
       this.bindLoop,
       canvas
     )
+  }
+
+  init() {
+    window.gl = canvas.getContext('webgl',
+      {
+        antialias: false,
+        preserveDrawingBuffer: false,
+        antialiasSamples: 2,
+      })
+
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.clearColor(0, 0, 0, 1)
+
+    this.createProgram()
+    this.createBuffer()
+  }
+
+  createProgram() {
+    let vss = "\
+    attribute vec4 aPos;\
+    void main()\
+    {\
+      gl_Position = aPos;\
+    }\
+    "
+
+    let fss = "\
+    void main()\
+    {\
+      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\
+    }\
+    "
+
+    let vs = this.createShader(vss, gl.VERTEX_SHADER)
+    let fs = this.createShader(fss, gl.FRAGMENT_SHADER)
+
+    let program = gl.createProgram()
+
+    gl.attachShader(program, vs)
+    gl.attachShader(program, fs)
+    gl.linkProgram(program)
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      let info = gl.getProgramInfoLog(program)
+      throw 'Could not link WebGL program. \n\n' + info
+    }
+
+    gl.deleteShader(vs)
+    gl.deleteShader(fs)
+
+    this.program = program
+  }
+
+  createShader(src, type) {
+    let shader = gl.createShader(type)
+    gl.shaderSource(shader, src)
+    gl.compileShader(shader)
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      let info = gl.getShaderInfoLog(shader)
+      throw 'Could not compile WebGL shader. \n\n' + info
+    }
+    return shader
+  }
+
+  createBuffer() {
+    let vertices = new Float32Array([0, 0, 0, 0.5, 0, 0, 0, 0.5, 0])
+    let indices = new Int16Array([0, 1, 2])
+
+    let vbo = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+    this.vbo = vbo
+
+    let ibo = gl.createBuffer()
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
+    this.ibo = ibo
+  }
+
+  update() {
+
+  }
+
+  render() {
+    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
+    gl.useProgram(this.program)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
+    let loc = gl.getAttribLocation(this.program, "aPos")
+    gl.enableVertexAttribArray(loc)
+    gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 3, 0)
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo)
+    gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0)
   }
 }
