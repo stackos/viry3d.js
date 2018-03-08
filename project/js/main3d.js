@@ -1,5 +1,4 @@
-
-let gl = canvas.getContext('webgl',
+window.gl = canvas.getContext('webgl',
   {
     alpha: false,
     depth: true,
@@ -15,9 +14,10 @@ let gl = canvas.getContext('webgl',
  */
 export default class Main {
   constructor() {
+    this.init()
+
     // 维护当前requestAnimationFrame的id
     this.aniId = 0
-
     this.restart()
   }
 
@@ -31,7 +31,7 @@ export default class Main {
     this.hasEventBind = false
 
     // 清除上一局的动画
-    window.cancelAnimationFrame(this.aniId);
+    window.cancelAnimationFrame(this.aniId)
 
     this.aniId = window.requestAnimationFrame(
       this.bindLoop,
@@ -47,15 +47,6 @@ export default class Main {
     let y = e.touches[0].clientY
   }
 
-  update() {
-
-  }
-
-  render() {
-    gl.clearColor(1, 0, 0, 1);
-    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-  }
-
   // 实现游戏帧循环
   loop() {
     this.update()
@@ -65,5 +56,21 @@ export default class Main {
       this.bindLoop,
       canvas
     )
+  }
+
+  init() {
+    let exts = gl.getSupportedExtensions()
+    console.log(exts)
+
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.clearColor(1, 0, 0, 1)
+  }
+
+  update() {
+
+  }
+
+  render() {
+    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
   }
 }
