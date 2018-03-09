@@ -1,4 +1,4 @@
-import Application from './wegame/application'
+import Application from './wegame/Application'
 
 let app = null
 
@@ -22,12 +22,13 @@ export default class App extends Application {
 
   createProgram() {
     let vss = `
+    uniform mat4 uMVP;
     attribute vec4 aPosition;
     attribute vec2 aUV;
     varying vec2 vUV;
     void main()
     {
-      gl_Position = aPosition;
+      gl_Position = uMVP * aPosition;
       vUV = aUV;
     }
     `
@@ -76,11 +77,12 @@ export default class App extends Application {
 
   createBuffer() {
     let vertices = new Float32Array([
-        0, 0, 0,        0, 0,
-        0, -0.5, 0,     0, 1,
-        0.5, -0.5, 0,   1, 1,
+      -1, 1, 0,   0, 0,
+      -1, -1, 0,  0, 1,
+      1, -1, 0,   1, 1,
+      1, 1, 0,    1, 0,
       ])
-    let indices = new Int16Array([0, 1, 2])
+    let indices = new Int16Array([0, 1, 2, 0, 2, 3])
 
     let vbo = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
@@ -111,7 +113,12 @@ export default class App extends Application {
   }
 
   update() {
-
+    this.mvp = [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]
   }
 
   render() {
@@ -122,23 +129,26 @@ export default class App extends Application {
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     gl.useProgram(this.program)
 
+    let loc = gl.getUniformLocation(this.program, 'uMVP')
+    gl.uniformMatrix4fv(loc, false, this.mvp)
+
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    let loc = gl.getUniformLocation(this.program, "uTexture")
+    loc = gl.getUniformLocation(this.program, 'uTexture')
     gl.uniform1i(loc, 0)
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
 
-    loc = gl.getAttribLocation(this.program, "aPosition")
+    loc = gl.getAttribLocation(this.program, 'aPosition')
     gl.enableVertexAttribArray(loc)
     gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 5, 0)
 
-    loc = gl.getAttribLocation(this.program, "aUV")
+    loc = gl.getAttribLocation(this.program, 'aUV')
     gl.enableVertexAttribArray(loc)
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 4 * 5, 4 * 3)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo)
-    gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0)
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
   }
 
   onTouchStart(x, y) {
