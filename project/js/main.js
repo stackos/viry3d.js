@@ -1,79 +1,46 @@
-export default class Main {
+import Application from './wegame/application'
+
+let app = null
+
+export default class App extends Application {
   constructor() {
-    this.init()
+    super()
 
-    // 维护当前requestAnimationFrame的id
-    this.aniId = 0
-    this.restart()
-  }
-
-  restart() {
-    canvas.removeEventListener(
-      'touchstart',
-      this.touchHandler
-    )
-
-    this.bindLoop = this.loop.bind(this)
-    this.hasEventBind = false
-
-    // 清除上一局的动画
-    window.cancelAnimationFrame(this.aniId)
-
-    this.aniId = window.requestAnimationFrame(
-      this.bindLoop,
-      canvas
-    )
-  }
-
-  // 游戏结束后的触摸事件处理逻辑
-  touchEventHandler(e) {
-    e.preventDefault()
-
-    let x = e.touches[0].clientX
-    let y = e.touches[0].clientY
-  }
-
-  // 实现游戏帧循环
-  loop() {
-    this.update()
-    this.render()
-
-    this.aniId = window.requestAnimationFrame(
-      this.bindLoop,
-      canvas
-    )
+    app = this
   }
 
   init() {
-    window.gl = canvas.getContext('webgl',
-      {
-        antialias: false,
-        preserveDrawingBuffer: false,
-        antialiasSamples: 2,
-      })
+    super.init()
 
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0, 0, 0, 1)
 
     this.createProgram()
     this.createBuffer()
+    this.createTexture()
   }
 
   createProgram() {
-    let vss = "\
-    attribute vec4 aPos;\
-    void main()\
-    {\
-      gl_Position = aPos;\
-    }\
-    "
+    let vss = `
+    attribute vec4 aPosition;
+    attribute vec2 aUV;
+    varying vec2 vUV;
+    void main()
+    {
+      gl_Position = aPosition;
+      vUV = aUV;
+    }
+    `
 
-    let fss = "\
-    void main()\
-    {\
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\
-    }\
-    "
+    let fss = `
+    precision mediump float;
+    uniform sampler2D uTexture;
+    varying vec2 vUV;
+    void main()
+    {
+      gl_FragColor = texture2D(uTexture, vUV);
+    }
+    `
 
     let vs = this.createShader(vss, gl.VERTEX_SHADER)
     let fs = this.createShader(fss, gl.FRAGMENT_SHADER)
@@ -86,7 +53,7 @@ export default class Main {
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       let info = gl.getProgramInfoLog(program)
-      throw 'Could not link WebGL program. \n\n' + info
+      console.log('Could not link WebGL program. \n\n' + info)
     }
 
     gl.deleteShader(vs)
@@ -102,13 +69,17 @@ export default class Main {
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       let info = gl.getShaderInfoLog(shader)
-      throw 'Could not compile WebGL shader. \n\n' + info
+      console.log('Could not compile WebGL shader. \n\n' + info)
     }
     return shader
   }
 
   createBuffer() {
-    let vertices = new Float32Array([0, 0, 0, 0.5, 0, 0, 0, 0.5, 0])
+    let vertices = new Float32Array([
+        0, 0, 0,        0, 0,
+        0, -0.5, 0,     0, 1,
+        0.5, -0.5, 0,   1, 1,
+      ])
     let indices = new Int16Array([0, 1, 2])
 
     let vbo = gl.createBuffer()
@@ -122,20 +93,63 @@ export default class Main {
     this.ibo = ibo
   }
 
+  createTexture() {
+    let image = new Image()
+    image.src = 'assets/texture/logo.jpg'
+    image.onload = function () {
+      let texture = gl.createTexture()
+      gl.bindTexture(gl.TEXTURE_2D, texture)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+
+      gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+      app.texture = texture
+    }
+  }
+
   update() {
 
   }
 
   render() {
+    if (this.texture == null) {
+      return
+    }
+
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
     gl.useProgram(this.program)
 
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    let loc = gl.getUniformLocation(this.program, "uTexture")
+    gl.uniform1i(loc, 0)
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
-    let loc = gl.getAttribLocation(this.program, "aPos")
+
+    loc = gl.getAttribLocation(this.program, "aPosition")
     gl.enableVertexAttribArray(loc)
-    gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 3, 0)
+    gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 5, 0)
+
+    loc = gl.getAttribLocation(this.program, "aUV")
+    gl.enableVertexAttribArray(loc)
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 4 * 5, 4 * 3)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo)
     gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0)
+  }
+
+  onTouchStart(x, y) {
+
+  }
+
+  onTouchMove(x, y) {
+
+  }
+
+  onTouchEnd(x, y) {
+
   }
 }
