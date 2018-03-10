@@ -1,5 +1,12 @@
 export default class Application {
   constructor() {
+    window.gl = canvas.getContext('webgl',
+      {
+        antialias: false,
+        preserveDrawingBuffer: false,
+        antialiasSamples: 2,
+      })
+
     this.init()
     this.startAnimation()
   }
@@ -62,12 +69,7 @@ export default class Application {
   }
 
   init() {
-    window.gl = canvas.getContext('webgl',
-      {
-        antialias: false,
-        preserveDrawingBuffer: false,
-        antialiasSamples: 2,
-      })
+    
   }
 
   update() {

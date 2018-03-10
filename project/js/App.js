@@ -2,6 +2,7 @@ import Application from './wegame/Application'
 import Vector3 from './wegame/math/Vector3'
 import Quaternion from './wegame/math/Quaternion'
 import Matrix4 from './wegame/math/Matrix4'
+import Material from './wegame/graphics/Material'
 
 export default class App extends Application {
   static instance = null
@@ -13,73 +14,17 @@ export default class App extends Application {
   }
 
   init() {
-    super.init()
+    this.material = Material.Create('UnlitTexture')
 
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0, 0, 0, 1)
 
-    this.createProgram()
     this.createBuffer()
     this.createTexture()
 
     this.rot = 0
   }
-
-  createProgram() {
-    let vss = `
-    uniform mat4 uMVP;
-    attribute vec4 aPosition;
-    attribute vec2 aUV;
-    varying vec2 vUV;
-    void main()
-    {
-      gl_Position = aPosition * uMVP;
-      vUV = aUV;
-    }
-    `
-
-    let fss = `
-    precision mediump float;
-    uniform sampler2D uTexture;
-    varying vec2 vUV;
-    void main()
-    {
-      gl_FragColor = texture2D(uTexture, vUV);
-    }
-    `
-
-    let vs = this.createShader(vss, gl.VERTEX_SHADER)
-    let fs = this.createShader(fss, gl.FRAGMENT_SHADER)
-
-    let program = gl.createProgram()
-
-    gl.attachShader(program, vs)
-    gl.attachShader(program, fs)
-    gl.linkProgram(program)
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      let info = gl.getProgramInfoLog(program)
-      console.error('Could not link WebGL program. \n\n' + info)
-    }
-
-    gl.deleteShader(vs)
-    gl.deleteShader(fs)
-
-    this.program = program
-  }
-
-  createShader(src, type) {
-    let shader = gl.createShader(type)
-    gl.shaderSource(shader, src)
-    gl.compileShader(shader)
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      let info = gl.getShaderInfoLog(shader)
-      console.error('Could not compile WebGL shader. \n\n' + info)
-    }
-    return shader
-  }
-
+  
   createBuffer() {
     let vertices = new Float32Array([
       -1, 1, 0,   0, 0,
@@ -126,8 +71,9 @@ export default class App extends Application {
       new Vector3(0, 0, 1),
       new Vector3(0, 1, 0))
     let proj = Matrix4.Perspective(45, canvas.width / canvas.height, 0.3, 1000)
+    let mvp = proj.multiply(view).multiply(model)
 
-    this.mvp = proj.multiply(view).multiply(model)
+    this.material.setMatrix('uMVP', mvp.data)
   }
 
   render() {
@@ -136,23 +82,19 @@ export default class App extends Application {
     }
 
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
-    gl.useProgram(this.program)
 
-    let loc = gl.getUniformLocation(this.program, 'uMVP')
-    gl.uniformMatrix4fv(loc, false, this.mvp.data)
+    this.material.setTexture2D('uTexture', this.texture)
+    this.material.apply(0)
 
-    gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    loc = gl.getUniformLocation(this.program, 'uTexture')
-    gl.uniform1i(loc, 0)
-
+    let program = this.material.getShader().getProgram(0)
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
 
-    loc = gl.getAttribLocation(this.program, 'aPosition')
+    let loc = gl.getAttribLocation(program, 'aPosition')
     gl.enableVertexAttribArray(loc)
     gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 5, 0)
 
-    loc = gl.getAttribLocation(this.program, 'aUV')
+    loc = gl.getAttribLocation(program, 'aUV')
     gl.enableVertexAttribArray(loc)
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 4 * 5, 4 * 3)
 
