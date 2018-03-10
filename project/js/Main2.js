@@ -1,12 +1,15 @@
 import Application from './wegame/Application'
-
-let app = null
+import Vector3 from './wegame/math/Vector3'
+import Quaternion from './wegame/math/Quaternion'
+import Matrix4 from './wegame/math/Matrix4'
 
 export default class App extends Application {
+  static instance = null
+
   constructor() {
     super()
 
-    app = this
+    App.instance = this
   }
 
   init() {
@@ -18,6 +21,8 @@ export default class App extends Application {
     this.createProgram()
     this.createBuffer()
     this.createTexture()
+
+    this.rot = 0
   }
 
   createProgram() {
@@ -28,7 +33,7 @@ export default class App extends Application {
     varying vec2 vUV;
     void main()
     {
-      gl_Position = uMVP * aPosition;
+      gl_Position = aPosition * uMVP;
       vUV = aUV;
     }
     `
@@ -108,17 +113,21 @@ export default class App extends Application {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
-      app.texture = texture
+      App.instance.texture = texture
     }
   }
 
   update() {
-    this.mvp = [
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    ]
+    this.rot += 1
+
+    let model = Matrix4.Rotation(Quaternion.Euler(0, 0, this.rot))
+    let view = Matrix4.LookTo(
+      new Vector3(0, 0, -10),
+      new Vector3(0, 0, 1),
+      new Vector3(0, 1, 0))
+    let proj = Matrix4.Perspective(45, canvas.width / canvas.height, 0.3, 1000)
+
+    this.mvp = proj.multiply(view).multiply(model)
   }
 
   render() {
@@ -130,7 +139,7 @@ export default class App extends Application {
     gl.useProgram(this.program)
 
     let loc = gl.getUniformLocation(this.program, 'uMVP')
-    gl.uniformMatrix4fv(loc, false, this.mvp)
+    gl.uniformMatrix4fv(loc, false, this.mvp.data)
 
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
