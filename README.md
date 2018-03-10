@@ -1,2 +1,2 @@
 # wegame.js
-Lightweight js game engine for building wechat mini games.
+Lightweight 3D game engine for building wechat mini games.
