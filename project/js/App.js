@@ -59,7 +59,7 @@ export default class App extends Application {
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       let info = gl.getProgramInfoLog(program)
-      console.log('Could not link WebGL program. \n\n' + info)
+      console.error('Could not link WebGL program. \n\n' + info)
     }
 
     gl.deleteShader(vs)
@@ -75,7 +75,7 @@ export default class App extends Application {
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       let info = gl.getShaderInfoLog(shader)
-      console.log('Could not compile WebGL shader. \n\n' + info)
+      console.error('Could not compile WebGL shader. \n\n' + info)
     }
     return shader
   }
