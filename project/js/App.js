@@ -3,6 +3,7 @@ import Vector3 from './wegame/math/Vector3'
 import Quaternion from './wegame/math/Quaternion'
 import Matrix4 from './wegame/math/Matrix4'
 import Material from './wegame/graphics/Material'
+import Mesh from './wegame/graphics/Mesh'
 
 export default class App extends Application {
   static instance = null
@@ -15,6 +16,7 @@ export default class App extends Application {
 
   init() {
     this.material = Material.Create('UnlitTexture')
+    this.mesh = new Mesh(4)
 
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0, 0, 0, 1)

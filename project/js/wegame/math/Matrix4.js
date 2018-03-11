@@ -3,12 +3,12 @@ import Vector3 from './Vector3'
 
 export default class Matrix4 {
   constructor() {
-    this.array = [
+    this.array = new Float32Array([
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1,
-    ]
+    ])
   }
 
   get data() {
