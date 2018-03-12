@@ -1,4 +1,5 @@
 import Application from './wegame/Application'
+import Vector2 from './wegame/math/Vector2'
 import Vector3 from './wegame/math/Vector3'
 import Quaternion from './wegame/math/Quaternion'
 import Matrix4 from './wegame/math/Matrix4'
@@ -16,7 +17,15 @@ export default class App extends Application {
 
   init() {
     this.material = Material.Create('UnlitTexture')
-    this.mesh = new Mesh(4)
+    this.mesh = new Mesh(4, [ Mesh.VERTEX_POSITION, Mesh.VERTEX_UV ])
+    this.mesh.setVertex(0, new Vector3(-1, 1, 0))
+    this.mesh.setVertex(1, new Vector3(-1, -1, 0))
+    this.mesh.setVertex(2, new Vector3(1, -1, 0))
+    this.mesh.setVertex(3, new Vector3(1, 1, 0))
+    this.mesh.setUV(0, new Vector2(0, 0))
+    this.mesh.setUV(1, new Vector2(0, 1))
+    this.mesh.setUV(2, new Vector2(1, 1))
+    this.mesh.setUV(3, new Vector2(1, 0))
 
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0, 0, 0, 1)
