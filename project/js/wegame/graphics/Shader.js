@@ -61,8 +61,16 @@ export default class Shader {
     }
   }
 
-  getProgram(index) {
-    return this.passes[index].program
+  getPassCount() {
+    return this.passes.length
+  }
+
+  getProgram(pass) {
+    return this.passes[pass].program
+  }
+
+  applyRenderStates(pass) {
+
   }
 
   static CreateGLShader(src, type) {

@@ -63,5 +63,7 @@ export default class Material {
         }
       }
     }
+
+    this.shader.applyRenderStates(pass)
   }
 }

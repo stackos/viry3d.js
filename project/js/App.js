@@ -5,6 +5,7 @@ import Quaternion from './wegame/math/Quaternion'
 import Matrix4 from './wegame/math/Matrix4'
 import Material from './wegame/graphics/Material'
 import Mesh from './wegame/graphics/Mesh'
+import MeshRenderer from './wegame/graphics/MeshRenderer'
 
 export default class App extends Application {
   static instance = null
@@ -17,44 +18,45 @@ export default class App extends Application {
 
   init() {
     this.material = Material.Create('UnlitTexture')
-    this.mesh = new Mesh(4, [ Mesh.VERTEX_POSITION, Mesh.VERTEX_UV ])
-    this.mesh.setVertex(0, new Vector3(-1, 1, 0))
-    this.mesh.setVertex(1, new Vector3(-1, -1, 0))
-    this.mesh.setVertex(2, new Vector3(1, -1, 0))
-    this.mesh.setVertex(3, new Vector3(1, 1, 0))
-    this.mesh.setUV(0, new Vector2(0, 0))
-    this.mesh.setUV(1, new Vector2(0, 1))
-    this.mesh.setUV(2, new Vector2(1, 1))
-    this.mesh.setUV(3, new Vector2(1, 0))
+
+    let mesh = new Mesh(8, [Mesh.VERTEX_POSITION, Mesh.VERTEX_UV])
+    mesh.setVertex(0, new Vector3(-1, 1, -1))
+    mesh.setVertex(1, new Vector3(-1, -1, -1))
+    mesh.setVertex(2, new Vector3(1, -1, -1))
+    mesh.setVertex(3, new Vector3(1, 1, -1))
+    mesh.setVertex(4, new Vector3(-1, 1, 1))
+    mesh.setVertex(5, new Vector3(-1, -1, 1))
+    mesh.setVertex(6, new Vector3(1, -1, 1))
+    mesh.setVertex(7, new Vector3(1, 1, 1))
+    mesh.setUV(0, new Vector2(0, 0))
+    mesh.setUV(1, new Vector2(0, 1))
+    mesh.setUV(2, new Vector2(1, 1))
+    mesh.setUV(3, new Vector2(1, 0))
+    mesh.setUV(4, new Vector2(1, 0))
+    mesh.setUV(5, new Vector2(1, 1))
+    mesh.setUV(6, new Vector2(0, 1))
+    mesh.setUV(7, new Vector2(0, 0))
+    mesh.addIndices([
+      0, 1, 2, 0, 2, 3,
+      3, 2, 6, 3, 6, 7,
+      7, 6, 5, 7, 5, 4,
+      4, 5, 1, 4, 1, 0,
+      4, 0, 3, 4, 3, 7,
+      1, 5, 6, 1, 6, 2,
+    ])
+
+    this.renderer = new MeshRenderer()
+    this.renderer.setMaterial(this.material)
+    this.renderer.setMesh(mesh)
 
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clearColor(0, 0, 0, 1)
 
-    this.createBuffer()
     this.createTexture()
 
     this.rot = 0
   }
-  
-  createBuffer() {
-    let vertices = new Float32Array([
-      -1, 1, 0,   0, 0,
-      -1, -1, 0,  0, 1,
-      1, -1, 0,   1, 1,
-      1, 1, 0,    1, 0,
-      ])
-    let indices = new Int16Array([0, 1, 2, 0, 2, 3])
-
-    let vbo = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
-    this.vbo = vbo
-
-    let ibo = gl.createBuffer()
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
-    this.ibo = ibo
-  }
+ 
 
   createTexture() {
     let image = new Image()
@@ -76,7 +78,7 @@ export default class App extends Application {
   update() {
     this.rot += 1
 
-    let model = Matrix4.Rotation(Quaternion.Euler(0, 0, this.rot))
+    let model = Matrix4.Rotation(Quaternion.Euler(0, this.rot, 0))
     let view = Matrix4.LookTo(
       new Vector3(0, 0, -10),
       new Vector3(0, 0, 1),
@@ -91,26 +93,11 @@ export default class App extends Application {
     if (this.texture == null) {
       return
     }
+    this.material.setTexture2D('uTexture', this.texture)
 
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
 
-    this.material.setTexture2D('uTexture', this.texture)
-    this.material.apply(0)
-
-    let program = this.material.getShader().getProgram(0)
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo)
-
-    let loc = gl.getAttribLocation(program, 'aPosition')
-    gl.enableVertexAttribArray(loc)
-    gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 4 * 5, 0)
-
-    loc = gl.getAttribLocation(program, 'aUV')
-    gl.enableVertexAttribArray(loc)
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 4 * 5, 4 * 3)
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ibo)
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+    this.renderer.render()
   }
 
   onTouchStart(x, y) {
