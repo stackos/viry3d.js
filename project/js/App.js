@@ -6,6 +6,7 @@ import Matrix4 from './wegame/math/Matrix4'
 import Material from './wegame/graphics/Material'
 import Mesh from './wegame/graphics/Mesh'
 import MeshRenderer from './wegame/graphics/MeshRenderer'
+import Camera from './wegame/graphics/Camera'
 
 export default class App extends Application {
   static instance = null
@@ -17,8 +18,6 @@ export default class App extends Application {
   }
 
   init() {
-    this.material = Material.Create('UnlitTexture')
-
     let mesh = new Mesh(8, [Mesh.VERTEX_POSITION, Mesh.VERTEX_UV])
     mesh.setVertex(0, new Vector3(-1, 1, -1))
     mesh.setVertex(1, new Vector3(-1, -1, -1))
@@ -45,20 +44,27 @@ export default class App extends Application {
       1, 5, 6, 1, 6, 2,
     ])
 
-    this.renderer = new MeshRenderer()
-    this.renderer.setMaterial(this.material)
-    this.renderer.setMesh(mesh)
+    let renderer = new MeshRenderer()
+    renderer.setMaterial(Material.Create('UnlitTexture'))
+    renderer.setMesh(mesh)
 
-    gl.viewport(0, 0, canvas.width, canvas.height)
-    gl.clearColor(0, 0, 0, 1)
-
-    this.createTexture()
+    this.renderer = renderer
 
     this.rot = 0
-  }
- 
 
-  createTexture() {
+    let camera = new Camera(canvas.width, canvas.height)
+    camera.setLocalPosition(0, 0, -10)
+    camera.setClearColor(0, 0, 0, 1)
+    camera.setFov(45)
+    camera.setNear(0.3)
+    camera.setFov(1000)
+
+    this.camera = camera
+
+    this.loadTexture()
+  }
+
+  loadTexture(path) {
     let image = new Image()
     image.src = 'assets/texture/logo.jpg'
     image.onload = function () {
@@ -72,11 +78,13 @@ export default class App extends Application {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
       App.instance.texture = texture
+      App.instance.renderer.getMaterial().setTexture2D('uTexture', this.texture)
     }
   }
 
   update() {
     this.rot += 1
+    this.renderer.setLocalRotation(0, this.rot, 0)
 
     let model = Matrix4.Rotation(Quaternion.Euler(0, this.rot, 0))
     let view = Matrix4.LookTo(
@@ -86,18 +94,16 @@ export default class App extends Application {
     let proj = Matrix4.Perspective(45, canvas.width / canvas.height, 0.3, 1000)
     let mvp = proj.multiply(view).multiply(model)
 
-    this.material.setMatrix('uMVP', mvp.data)
+    this.renderer.getMaterial().setMatrix('uMVP', mvp.data)
   }
 
   render() {
     if (this.texture == null) {
       return
     }
-    this.material.setTexture2D('uTexture', this.texture)
 
-    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT)
-
-    this.renderer.render()
+    this.camera.clearTarget()
+    this.renderer.render(this.camera)
   }
 
   onTouchStart(x, y) {

@@ -1,5 +1,9 @@
-export default class Renderer {
+import Node from '../Node'
+
+export default class Renderer extends Node {
   constructor() {
+    super()
+
     this.materials = new Array()
   }
 
@@ -21,7 +25,17 @@ export default class Renderer {
     }
   }
 
-  render() {
+  getMaterial() {
+    if (this.materials.length > 0) {
+      return this.materials[0]
+    }
+    return null
+  }
+
+  render(camera) {
+    //let view = camera.getViewMatrix()
+    //let proj = camera.getProjectionMatrix()
+
     let vb = this.getVertexBuffer()
     let attribs = this.getVertexAttribs()
     let ib = this.getIndexBuffer()

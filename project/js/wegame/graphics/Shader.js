@@ -58,6 +58,38 @@ export default class Shader {
 
         pass.program = program
       }
+
+      if (pass.rs == null) {
+        pass.rs = { }
+      }
+
+      let rs = pass.rs
+
+      if (rs.Cull == null) {
+        rs.Cull = gl.BACK
+      }
+
+      if (rs.ZTest == null) {
+        rs.ZTest = gl.LEQUAL
+      }
+
+      if (rs.ZWrite == null) {
+        rs.ZWrite = 1
+      }
+
+      if (rs.Blend == null) {
+        rs.Blend = 0
+      }
+
+      if (rs.Blend == 1) {
+        if (rs.SrcBlendMode == null) {
+          rs.SrcBlendMode = gl.SRC_ALPHA
+        }
+
+        if (rs.DstBlendMode == null) {
+          rs.DstBlendMode = gl.ONE_MINUS_SRC_ALPHA
+        }
+      }
     }
   }
 
@@ -70,7 +102,26 @@ export default class Shader {
   }
 
   applyRenderStates(pass) {
+    let rs = this.passes[pass].rs
 
+    if (rs.Cull == 0) {
+      gl.disable(gl.CULL_FACE)
+    } else {
+      gl.enable(gl.CULL_FACE)
+      gl.cullFace(rs.Cull)
+      gl.frontFace(gl.CCW)
+    }
+
+    gl.enable(gl.DEPTH_TEST)
+    gl.depthFunc(rs.ZTest)
+    gl.depthMask(rs.ZWrite)
+
+    if (rs.Blend == 0) {
+      gl.disable(gl.BLEND)
+    } else {
+      gl.enable(gl.BLEND)
+      gl.blendFunc(rs.SrcBlendMode, rs.DstBlendMode)
+    }
   }
 
   static CreateGLShader(src, type) {

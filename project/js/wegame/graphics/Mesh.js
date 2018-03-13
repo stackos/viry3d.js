@@ -30,8 +30,8 @@ export default class Mesh {
     this.littleEndian = (function () {
       let buffer = new ArrayBuffer(2)
       new DataView(buffer).setInt16(0, 256, true)
-      return new Int16Array(buffer)[0] === 256;
-    })();
+      return new Int16Array(buffer)[0] === 256
+    })()
   }
 
   getAttribOffset(attrib) {
@@ -81,7 +81,7 @@ export default class Mesh {
     if (this.vb == null) {
       this.vb = gl.createBuffer()
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vb)
-      gl.bufferData(gl.ARRAY_BUFFER, this.dataView, gl.STATIC_DRAW)
+      gl.bufferData(gl.ARRAY_BUFFER, this.dataView.buffer, gl.STATIC_DRAW) // use this.dataView to buffer data will cause problem on mobile phone
     }
     return this.vb
   }
