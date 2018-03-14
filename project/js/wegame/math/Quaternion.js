@@ -9,6 +9,18 @@ export default class Quaternion {
     this.w = w
   }
 
+  copy(q = null) {
+    if (q == null) {
+      return new Quaternion().copy(this)
+    } else {
+      this.x = q.x
+      this.y = q.y
+      this.z = q.z
+      this.w = q.w
+      return this
+    }
+  }
+
   multiply(q) {
     let x = this.w * q.x + this.x * q.w + this.y * q.z - this.z * q.y
 		let y = this.w * q.y + this.y * q.w + this.z * q.x - this.x * q.z
@@ -16,6 +28,15 @@ export default class Quaternion {
 		let w = this.w * q.w - this.x * q.x - this.y * q.y - this.z * q.z
 
 		return new Quaternion(x, y, z, w)
+  }
+
+  multiplyVector3(v) {
+    let q = this.multiply(new Quaternion(v.x, v.y, v.z, 0)).multiply(this.inverse())
+    return new Vector3(q.x, q.y, q.z)
+  }
+
+  inverse() {
+    return new Quaternion(-this.x, -this.y, -this.z, this.w)
   }
 
   static AngleAxis(angle, axis) {

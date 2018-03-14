@@ -11,7 +11,18 @@ export default class Matrix4 {
     ])
   }
 
-  get data() {
+  copy(m = null) {
+    if (m == null) {
+      return new Matrix4().copy(this)
+    } else {
+      for (let i = 0; i < this.array.length; ++i) {
+        this.array[i] = m.array[i]
+      }
+      return this
+    }
+  }
+
+  data() {
     return this.array
   }
 
@@ -41,12 +52,17 @@ export default class Matrix4 {
     return m
   }
 
-  static Translation(x, y, z) {
+  inverse() {
+    let m = new Matrix4()
+    return m
+  }
+
+  static Translation(t) {
     let m = new Matrix4()
 
-    m.array[3] = x
-		m.array[7] = y
-    m.array[11] = z
+    m.array[3] = t.x
+    m.array[7] = t.y
+    m.array[11] = t.z
 
     return m
   }
@@ -69,14 +85,21 @@ export default class Matrix4 {
     return m
   }
 
-  static Scaling(x, y, z) {
+  static Scaling(s) {
     let m = new Matrix4()
 
-    m.array[0] = x
-		m.array[5] = y
-		m.array[11] = z
+    m.array[0] = s.x
+    m.array[5] = s.y
+    m.array[10] = s.z
 
     return m
+  }
+
+  static TRS(t, r, s) {
+    let mt = Matrix4.Translation(t)
+    let mr = Matrix4.Rotation(r)
+    let ms = Matrix4.Scaling(s)
+    return mt.multiply(mr).multiply(ms)
   }
 
   static LookTo(eye, forward, up) {

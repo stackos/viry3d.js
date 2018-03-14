@@ -7,6 +7,17 @@ export default class Vector3 {
     this.z = z
   }
 
+  copy(v = null) {
+    if (v == null) {
+      return new Vector3().copy(this)
+    } else {
+      this.x = v.x
+      this.y = v.y
+      this.z = v.z
+      return this
+    }
+  }
+
   sqrLength() {
     return this.x * this.x + this.y * this.y + this.z * this.z
   }

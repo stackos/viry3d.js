@@ -33,8 +33,10 @@ export default class Renderer extends Node {
   }
 
   render(camera) {
-    //let view = camera.getViewMatrix()
-    //let proj = camera.getProjectionMatrix()
+    let model = this.getLocalToWorldMatrix()
+    let view = camera.getViewMatrix()
+    let proj = camera.getProjectionMatrix()
+    let mvp = proj.multiply(view).multiply(model)
 
     let vb = this.getVertexBuffer()
     let attribs = this.getVertexAttribs()
@@ -51,6 +53,8 @@ export default class Renderer extends Node {
       let material = this.materials[i]
       let shader = material.getShader()
       let range = this.getIndexRange(i)
+
+      material.setMatrix('uMVP', mvp.data())
 
       for (let j = 0; j < shader.getPassCount(); ++j) {
         let program = shader.getProgram(j)

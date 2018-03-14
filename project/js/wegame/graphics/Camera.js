@@ -60,14 +60,10 @@ export default class Camera extends Node {
       this.matrixDirty = false
       
       let pos = this.getPosition()
-      //let forward = new Vector3(0, 0, 1)
-      //let up = new Vector3(0, 1, 0) //
+      let forward = this.getForward()
+      let up = this.getUp()
 
-      //this.viewMatrix = Matrix4.LookTo(
-      //  pos,
-      //  forward,
-      //  up)
-
+      this.viewMatrix = Matrix4.LookTo(pos, forward, up)
       this.projectionMatrix = Matrix4.Perspective(this.fov, this.targetWidth / this.targetHeight, this.near, this.far)
     }
   }

@@ -2,7 +2,6 @@ import Application from './wegame/Application'
 import Vector2 from './wegame/math/Vector2'
 import Vector3 from './wegame/math/Vector3'
 import Quaternion from './wegame/math/Quaternion'
-import Matrix4 from './wegame/math/Matrix4'
 import Material from './wegame/graphics/Material'
 import Mesh from './wegame/graphics/Mesh'
 import MeshRenderer from './wegame/graphics/MeshRenderer'
@@ -47,21 +46,19 @@ export default class App extends Application {
     let renderer = new MeshRenderer()
     renderer.setMaterial(Material.Create('UnlitTexture'))
     renderer.setMesh(mesh)
-
     this.renderer = renderer
 
-    this.rot = 0
-
     let camera = new Camera(canvas.width, canvas.height)
-    camera.setLocalPosition(0, 0, -10)
+    camera.setLocalPosition(new Vector3(0, 0, -10))
     camera.setClearColor(0, 0, 0, 1)
     camera.setFov(45)
     camera.setNear(0.3)
-    camera.setFov(1000)
-
+    camera.setFar(1000)
     this.camera = camera
 
     this.loadTexture()
+
+    this.rot = 0
   }
 
   loadTexture(path) {
@@ -84,17 +81,7 @@ export default class App extends Application {
 
   update() {
     this.rot += 1
-    this.renderer.setLocalRotation(0, this.rot, 0)
-
-    let model = Matrix4.Rotation(Quaternion.Euler(0, this.rot, 0))
-    let view = Matrix4.LookTo(
-      new Vector3(0, 0, -10),
-      new Vector3(0, 0, 1),
-      new Vector3(0, 1, 0))
-    let proj = Matrix4.Perspective(45, canvas.width / canvas.height, 0.3, 1000)
-    let mvp = proj.multiply(view).multiply(model)
-
-    this.renderer.getMaterial().setMatrix('uMVP', mvp.data)
+    this.renderer.setLocalRotation(Quaternion.Euler(0, this.rot, 0))
   }
 
   render() {
