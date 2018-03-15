@@ -52,6 +52,43 @@ export default class Matrix4 {
     return m
   }
 
+  multiplyPoint(v) {
+    let x = v.x
+    let y = v.y
+    let z = v.z
+
+    let vx = x * this.array[0] + y * this.array[1] + z * this.array[2] + this.array[3]
+    let vy = x * this.array[4] + y * this.array[5] + z * this.array[6] + this.array[7]
+    let vz = x * this.array[8] + y * this.array[9] + z * this.array[10] + this.array[11]
+    let vw = x * this.array[12] + y * this.array[13] + z * this.array[14] + this.array[15]
+
+    return new Vector3(vx / vw, vy / vw, vz / vw)
+  }
+
+  multiplyPoint3x4(v) {
+    let x = v.x
+    let y = v.y
+    let z = v.z
+
+    let vx = x * this.array[0] + y * this.array[1] + z * this.array[2] + this.array[3]
+    let vy = x * this.array[4] + y * this.array[5] + z * this.array[6] + this.array[7]
+    let vz = x * this.array[8] + y * this.array[9] + z * this.array[10] + this.array[11]
+
+    return new Vector3(vx, vy, vz)
+  }
+
+  multiplyDirection(v) {
+    let x = v.x
+    let y = v.y
+    let z = v.z
+
+    let vx = x * this.array[0] + y * this.array[1] + z * this.array[2]
+    let vy = x * this.array[4] + y * this.array[5] + z * this.array[6]
+    let vz = x * this.array[8] + y * this.array[9] + z * this.array[10]
+
+    return new Vector3(vx, vy, vz)
+  }
+
   determinant() {
     let m0 = this.array[0]; let m1 = this.array[4]; let m2 = this.array[8]; let m3 = this.array[12]
     let m4 = this.array[1]; let m5 = this.array[5]; let m6 = this.array[9]; let m7 = this.array[13]

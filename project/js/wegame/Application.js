@@ -19,42 +19,34 @@ export default class Application {
       canvas
     )
 
-    this.touchStartHandler = this.onTouchStartEvent.bind(this)
-    canvas.addEventListener('touchstart', this.touchStartHandler)
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault()
 
-    this.touchMoveHandler = this.onTouchMoveEvent.bind(this)
-    canvas.addEventListener('touchmove', this.touchMoveHandler)
+      let x = e.touches[0].clientX
+      let y = e.touches[0].clientY
 
-    this.touchEndHandler = this.onTouchEndEvent.bind(this)
-    canvas.addEventListener('touchend', this.touchEndHandler)
-    canvas.addEventListener('touchcancel', this.touchEndHandler)
-  }
+      this.onTouchStart(x, y)
+    })
 
-  onTouchStartEvent(e) {
-    e.preventDefault()
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault()
 
-    let x = e.touches[0].clientX
-    let y = e.touches[0].clientY
+      let x = e.touches[0].clientX
+      let y = e.touches[0].clientY
 
-    this.onTouchStart(x, y)
-  }
+      this.onTouchMove(x, y)
+    })
 
-  onTouchMoveEvent(e) {
-    e.preventDefault()
+    let touchEnd = e => {
+      e.preventDefault()
 
-    let x = e.touches[0].clientX
-    let y = e.touches[0].clientY
+      let x = e.changedTouches[0].clientX
+      let y = e.changedTouches[0].clientY
 
-    this.onTouchMove(x, y)
-  }
-
-  onTouchEndEvent(e) {
-    e.preventDefault()
-
-    let x = e.changedTouches[0].clientX
-    let y = e.changedTouches[0].clientY
-
-    this.onTouchEnd(x, y)
+      this.onTouchEnd(x, y)
+    }
+    canvas.addEventListener('touchend', touchEnd)
+    canvas.addEventListener('touchcancel', touchEnd)
   }
 
   // 实现游戏帧循环
