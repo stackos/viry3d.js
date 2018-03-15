@@ -61,7 +61,7 @@ export default class Node {
         this.scale.copy(this.localScale)
 
         this.localToWorldMatrix = Matrix4.TRS(this.position.copy(), this.rotation.copy(), this.scale.copy())
-        this.worldToLocalMatrix = this.localToWorldMatrix.inverse()
+        this.worldToLocalMatrix = this.localToWorldMatrix.inversed()
       }
     }
   }

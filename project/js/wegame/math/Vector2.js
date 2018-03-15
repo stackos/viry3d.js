@@ -6,6 +6,17 @@ export default class Vector2 {
     this.y = y
   }
 
+  copy(v = null) {
+    if (v == null) {
+      return new Vector2().copy(this)
+    } else {
+      this.x = v.x
+      this.y = v.y
+
+      return this
+    }
+  }
+
   sqrLength() {
     return this.x * this.x + this.y * this.y
   }
@@ -22,11 +33,11 @@ export default class Vector2 {
 			this.x = this.x * inv
 			this.y = this.y * inv
 		}
-
-    return this
   }
 
-  static Normalize(v) {
-    return new Vector2(v.x, v.y).normalize()
+  normalized() {
+    let v = this.copy()
+    v.normalize()
+    return v
   }
 }

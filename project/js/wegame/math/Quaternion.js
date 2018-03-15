@@ -31,16 +31,25 @@ export default class Quaternion {
   }
 
   multiplyVector3(v) {
-    let q = this.multiply(new Quaternion(v.x, v.y, v.z, 0)).multiply(this.inverse())
+    let q = this.multiply(new Quaternion(v.x, v.y, v.z, 0)).multiply(this.inversed())
     return new Vector3(q.x, q.y, q.z)
   }
 
   inverse() {
-    return new Quaternion(-this.x, -this.y, -this.z, this.w)
+    this.x = -this.x
+    this.y = -this.y
+    this.z = -this.z
+    this.w = this.w
+  }
+
+  inversed() {
+    let q = this.copy()
+    q.inverse()
+    return q
   }
 
   static AngleAxis(angle, axis) {
-    let v = Vector3.Normalize(axis)
+    let v = axis.normalized()
 
 		let cosv = Math.cos(Mathf.DEG2RAD * angle * 0.5)
 		let sinv = Math.sin(Mathf.DEG2RAD * angle * 0.5)

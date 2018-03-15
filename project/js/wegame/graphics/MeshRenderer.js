@@ -11,14 +11,14 @@ export default class MeshRenderer extends Renderer {
     this.attribs = null
   }
 
-  getVertexBuffer() {
+  getVertexBuffer() { // override
     if (this.mesh != null) {
       return this.mesh.getVertexBuffer()
     }
     return null
   }
 
-  getVertexAttribs() {
+  getVertexAttribs() { // override
     if (this.mesh != null) {
       if (this.attribs == null) {
         let attribs = new Array()
@@ -103,14 +103,14 @@ export default class MeshRenderer extends Renderer {
     return null
   }
 
-  getIndexBuffer() {
+  getIndexBuffer() { // override
     if (this.mesh != null) {
       return this.mesh.getIndexBuffer()
     }
     return null
   }
 
-  getIndexRange(materialIndex) {
+  getIndexRange(materialIndex) { // override
     if (this.mesh != null) {
       return this.mesh.getIndexRange(materialIndex)
     }

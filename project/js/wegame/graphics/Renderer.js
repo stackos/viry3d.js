@@ -32,6 +32,22 @@ export default class Renderer extends Node {
     return null
   }
 
+  getVertexBuffer() { // need override
+    return null
+  }
+
+  getVertexAttribs() { // need override
+    return null
+  }
+
+  getIndexBuffer() { // need override
+    return null
+  }
+
+  getIndexRange(materialIndex) { // need override
+    return null
+  }
+
   render(camera) {
     let model = this.getLocalToWorldMatrix()
     let view = camera.getViewMatrix()

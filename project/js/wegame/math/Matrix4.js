@@ -52,8 +52,56 @@ export default class Matrix4 {
     return m
   }
 
-  inverse() {
+  determinant() {
+    let m0 = this.array[0]; let m1 = this.array[4]; let m2 = this.array[8]; let m3 = this.array[12]
+    let m4 = this.array[1]; let m5 = this.array[5]; let m6 = this.array[9]; let m7 = this.array[13]
+    let m8 = this.array[2]; let m9 = this.array[6]; let m10 = this.array[10]; let m11 = this.array[14]
+    let m12 = this.array[3]; let m13 = this.array[7]; let m14 = this.array[11]; let m15 = this.array[15]
+
+    return (
+      m12 * m9 * m6 * m3    - m8 * m13 * m6 * m3    - m12 * m5 * m10 * m3   + m4 * m13 * m10 * m3   +
+      m8 * m5 * m14 * m3    - m4 * m9 * m14 * m3    - m12 * m9 * m2 * m7    + m8 * m13 * m2 * m7    +
+      m12 * m1 * m10 * m7   - m0 * m13 * m10 * m7   - m8 * m1 * m14 * m7    + m0 * m9 * m14 * m7    +
+      m12 * m5 * m2 * m11   - m4 * m13 * m2 * m11   - m12 * m1 * m6 * m11   + m0 * m13 * m6 * m11   +
+      m4 * m1 * m14 * m11   - m0 * m5 * m14 * m11   - m8 * m5 * m2 * m15    + m4 * m9 * m2 * m15    +
+      m8 * m1 * m6 * m15    - m0 * m9 * m6 * m15    - m4 * m1 * m10 * m15   + m0 * m5 * m10 * m15)
+  }
+
+  inversed() {
     let m = new Matrix4()
+
+    let d = this.determinant()
+    if (Math.abs(d) < Number.EPSILON) {
+      return m
+    }
+
+    let m0 = this.array[0]; let m1 = this.array[4]; let m2 = this.array[8]; let m3 = this.array[12]
+    let m4 = this.array[1]; let m5 = this.array[5]; let m6 = this.array[9]; let m7 = this.array[13]
+    let m8 = this.array[2]; let m9 = this.array[6]; let m10 = this.array[10]; let m11 = this.array[14]
+    let m12 = this.array[3]; let m13 = this.array[7]; let m14 = this.array[11]; let m15 = this.array[15]
+
+    let s = 1.0 / d
+
+    m.array[0] = (m9*m14*m7   -m13*m10*m7     +m13*m6*m11     -m5*m14*m11     -m9*m6*m15      +m5*m10*m15) * s
+    m.array[4] = (m13*m10*m3  -m9*m14*m3      -m13*m2*m11     +m1*m14*m11     +m9*m2*m15      -m1*m10*m15) * s
+    m.array[8] = (m5*m14*m3   -m13*m6*m3      +m13*m2*m7      -m1*m14*m7      -m5*m2*m15      +m1*m6*m15) * s
+    m.array[12] = (m9*m6*m3   -m5*m10*m3      -m9*m2*m7       +m1*m10*m7      +m5*m2*m11      -m1*m6*m11) * s
+
+    m.array[1] = (m12*m10*m7  -m8*m14*m7      -m12*m6*m11     +m4*m14*m11     +m8*m6*m15      -m4*m10*m15) * s
+    m.array[5] = (m8*m14*m3   -m12*m10*m3     +m12*m2*m11     -m0*m14*m11     -m8*m2*m15      +m0*m10*m15) * s
+    m.array[9] = (m12*m6*m3   -m4*m14*m3      -m12*m2*m7      +m0*m14*m7      +m4*m2*m15      -m0*m6*m15) * s
+    m.array[13] = (m4*m10*m3  -m8*m6*m3       +m8*m2*m7       -m0*m10*m7      -m4*m2*m11      +m0*m6*m11) * s
+
+    m.array[2] = (m8*m13*m7   -m12*m9*m7      +m12*m5*m11     -m4*m13*m11     -m8*m5*m15      +m4*m9*m15) * s
+    m.array[6] = (m12*m9*m3   -m8*m13*m3      -m12*m1*m11     +m0*m13*m11     +m8*m1*m15      -m0*m9*m15) * s
+    m.array[10] = (m4*m13*m3  -m12*m5*m3      +m12*m1*m7      -m0*m13*m7      -m4*m1*m15      +m0*m5*m15) * s
+    m.array[14] = (m8*m5*m3   -m4*m9*m3       -m8*m1*m7       +m0*m9*m7       +m4*m1*m11      -m0*m5*m11) * s
+
+    m.array[3] = (m12*m9*m6   -m8*m13*m6      -m12*m5*m10     +m4*m13*m10     +m8*m5*m14      -m4*m9*m14) * s
+    m.array[7] = (m8*m13*m2   -m12*m9*m2      +m12*m1*m10     -m0*m13*m10     -m8*m1*m14      +m0*m9*m14) * s
+    m.array[11] = (m12*m5*m2  -m4*m13*m2      -m12*m1*m6      +m0*m13*m6      +m4*m1*m14      -m0*m5*m14) * s
+    m.array[15] = (m4*m9*m2   -m8*m5*m2       +m8*m1*m6       -m0*m9*m6       -m4*m1*m10      +m0*m5*m10) * s
+
     return m
   }
 

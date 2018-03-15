@@ -8,12 +8,8 @@ import MeshRenderer from './wegame/graphics/MeshRenderer'
 import Camera from './wegame/graphics/Camera'
 
 export default class App extends Application {
-  static instance = null
-
   constructor() {
     super()
-
-    App.instance = this
   }
 
   init() {
@@ -64,7 +60,7 @@ export default class App extends Application {
   loadTexture(path) {
     let image = new Image()
     image.src = 'assets/texture/logo.jpg'
-    image.onload = function () {
+    image.onload = (function () {
       let texture = gl.createTexture()
       gl.bindTexture(gl.TEXTURE_2D, texture)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
@@ -73,10 +69,10 @@ export default class App extends Application {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-
-      App.instance.texture = texture
-      App.instance.renderer.getMaterial().setTexture2D('uTexture', this.texture)
-    }
+      
+      this.texture = texture
+      this.renderer.getMaterial().setTexture2D('uTexture', texture)
+    }).bind(this)
   }
 
   update() {
