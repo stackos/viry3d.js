@@ -54,9 +54,9 @@ export default class Material {
           case PropertyType.Matrix:
             gl.uniformMatrix4fv(loc, false, property.value)
             break
-          case PropertyType.Texture:
+          case PropertyType.Texture2D:
             gl.activeTexture(gl.TEXTURE0 + textureIndex)
-            gl.bindTexture(gl.TEXTURE_2D, property.value)
+            gl.bindTexture(gl.TEXTURE_2D, property.value.getTexture())
             gl.uniform1i(loc, textureIndex)
             textureIndex++
             break

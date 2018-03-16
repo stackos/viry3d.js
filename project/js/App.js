@@ -6,6 +6,7 @@ import Material from './wegame/graphics/Material'
 import Mesh from './wegame/graphics/Mesh'
 import MeshRenderer from './wegame/graphics/MeshRenderer'
 import Camera from './wegame/graphics/Camera'
+import Resources from './wegame/Resources'
 
 export default class App extends Application {
   constructor() {
@@ -52,27 +53,16 @@ export default class App extends Application {
     camera.setFar(1000)
     this.camera = camera
 
-    this.loadTexture()
+    Resources.LoadTexture2D('assets/texture/logo.jpg')
+      .then(texture => {
+        this.renderer.getMaterial().setTexture2D('uTexture', texture)
+        this.texture = texture
+      })
+      .catch(error => {
+        console.error(error)
+      })
 
     this.rot = 0
-  }
-
-  loadTexture(path) {
-    let image = new Image()
-    image.src = 'assets/texture/logo.jpg'
-    image.onload = () => {
-      let texture = gl.createTexture()
-      gl.bindTexture(gl.TEXTURE_2D, texture)
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-
-      gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-
-      this.renderer.getMaterial().setTexture2D('uTexture', texture)
-      this.texture = texture
-    }
   }
 
   update() {
