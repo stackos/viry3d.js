@@ -79,7 +79,7 @@ export default class Renderer extends Node {
 
         for (let attrib of attribs) {
           let loc = gl.getAttribLocation(program, attrib.name)
-          if (loc != null) {
+          if (loc >= 0) {
             gl.enableVertexAttribArray(loc)
             gl.vertexAttribPointer(loc, attrib.count, attrib.type, false, attrib.stride, attrib.offset)
           }

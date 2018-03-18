@@ -31,6 +31,13 @@ export default class Material {
     })
   }
 
+  setColor(name, color) {
+    this.properties.set(name, {
+      type: PropertyType.Color,
+      value: color
+    })
+  }
+
   setTexture2D(name, texture) {
     this.properties.set(name, {
       type: PropertyType.Texture2D,
@@ -53,6 +60,10 @@ export default class Material {
         switch (property.type) {
           case PropertyType.Matrix:
             gl.uniformMatrix4fv(loc, false, property.value)
+            break
+          case PropertyType.Color:
+            let color = property.value
+            gl.uniform4f(loc, color.r, color.g, color.b, color.a)
             break
           case PropertyType.Texture2D:
             gl.activeTexture(gl.TEXTURE0 + textureIndex)

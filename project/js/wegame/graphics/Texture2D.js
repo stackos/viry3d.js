@@ -33,4 +33,24 @@ export default class Texture2D extends Texture {
 
     gl.bindTexture(this.target, null)
   }
+
+  setPixels(pixels) {
+    gl.bindTexture(this.target, this.getTexture())
+    gl.texImage2D(this.target, 0, gl.RGBA, this.getWidth(), this.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+
+    if (this.isMipmap()) {
+      gl.generateMipmap(this.target)
+    }
+
+    gl.bindTexture(this.target, null)
+  }
+
+  static GetDefaultTexture() {
+    if (Texture2D.defaultTexture == null) {
+      Texture2D.defaultTexture = new Texture2D(1, 1)
+      Texture2D.defaultTexture.setPixels(new Uint8Array([255, 255, 255, 255]))
+    }
+
+    return Texture2D.defaultTexture
+  }
 }

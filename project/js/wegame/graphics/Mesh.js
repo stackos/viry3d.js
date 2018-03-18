@@ -63,10 +63,55 @@ export default class Mesh {
     this.dataView.setFloat32(this.vertexStride * index + offset + 8, pos.z, this.littleEndian)
   }
 
+  setNormal(index, nor) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_NORMAL)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 0, nor.x, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 4, nor.y, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 8, nor.z, this.littleEndian)
+  }
+
+  setTangent(index, tan) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_TANGENT)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 0, tan.x, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 4, tan.y, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 8, tan.z, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 12, tan.w, this.littleEndian)
+  }
+
   setUV(index, uv) {
     let offset = this.getAttribOffset(Mesh.VERTEX_UV)
     this.dataView.setFloat32(this.vertexStride * index + offset + 0, uv.x, this.littleEndian)
     this.dataView.setFloat32(this.vertexStride * index + offset + 4, uv.y, this.littleEndian)
+  }
+
+  setUV2(index, uv) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_UV2)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 0, uv.x, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 4, uv.y, this.littleEndian)
+  }
+
+  setColor(index, col) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_COLOR)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 0, col.r, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 4, col.g, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 8, col.b, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 12, col.a, this.littleEndian)
+  }
+
+  setBoneIndices(index, indices) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_BONE_INDICES)
+    this.dataView.setInt16(this.vertexStride * index + offset + 0, indices.x, this.littleEndian)
+    this.dataView.setInt16(this.vertexStride * index + offset + 2, indices.y, this.littleEndian)
+    this.dataView.setInt16(this.vertexStride * index + offset + 6, indices.z, this.littleEndian)
+    this.dataView.setInt16(this.vertexStride * index + offset + 8, indices.w, this.littleEndian)
+  }
+
+  setBoneWeights(index, weights) {
+    let offset = this.getAttribOffset(Mesh.VERTEX_BONE_WEIGHTS)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 0, weights.x, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 4, weights.y, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 8, weights.z, this.littleEndian)
+    this.dataView.setFloat32(this.vertexStride * index + offset + 12, weights.w, this.littleEndian)
   }
 
   clearIndices() {

@@ -6,6 +6,13 @@ export default class Application {
         preserveDrawingBuffer: false,
         antialiasSamples: 2,
       })
+    if (console.assert == null) {
+      console.assert = function (exp) {
+        if (exp == false) {
+          console.error('assert false')
+        }
+      }
+    }
 
     this.init()
     this.startAnimation()
