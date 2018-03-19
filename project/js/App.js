@@ -21,7 +21,7 @@ export default class App extends Application {
     this.camera = camera
 
     //'assets/gltf/min.gltf')//
-    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Embedded/Duck.gltf')
+    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf')
       .then(node => {
         this.sceneNode = node
         this.sceneNode.setLocalScale(new Vector3(0.01, 0.01, 0.01))

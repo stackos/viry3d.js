@@ -38,13 +38,13 @@ export default class Resources {
     })
   }
 
-  static LoadFileUtf8(path) {
+  static LoadFile(path, encoding) {
     return new Promise((resolve, reject) => {
       if (path.startsWith('http')) {
         let task = wx.downloadFile({
           url: path,
           success: fileInfo => {
-            let result = wx.getFileSystemManager().readFileSync(fileInfo.tempFilePath, 'utf8')
+            let result = wx.getFileSystemManager().readFileSync(fileInfo.tempFilePath, encoding)
             if (result != null) {
               resolve(result)
             } else {
@@ -56,7 +56,7 @@ export default class Resources {
           }
         })
       } else {
-        let result = wx.getFileSystemManager().readFileSync(path, 'utf8')
+        let result = wx.getFileSystemManager().readFileSync(path, encoding)
         if (result != null) {
           resolve(result)
         } else {
@@ -74,43 +74,57 @@ export default class Resources {
     return uri.startsWith('data:image/')
   }
 
-  static LoadUriData(uri, bufferSize) {
-    if (Resources.IsDataUri(uri)) {
-      let header1 = 'data:application/octet-stream;base64,'
-      let header2 = 'data:application/gltf-buffer;base64,'
-      let base64 = null
+  static LoadUriData(gltf, cache, uri, bufferSize) {
+    return new Promise((resolve, reject) => {
+      if (Resources.IsDataUri(uri)) {
+        let header1 = 'data:application/octet-stream;base64,'
+        let header2 = 'data:application/gltf-buffer;base64,'
+        let base64 = null
 
-      if (uri.startsWith(header1)) {
-        base64 = uri.substr(header1.length)
-      } else if (uri.startsWith(header2)) {
-        base64 = uri.substr(header2.length)
+        if (uri.startsWith(header1)) {
+          base64 = uri.substr(header1.length)
+        } else if (uri.startsWith(header2)) {
+          base64 = uri.substr(header2.length)
+        }
+
+        let buffer = Base64.Decode(base64)
+        console.assert(buffer.byteLength == bufferSize)
+        resolve(buffer)
+      } else {
+        // external bin
+        let path = gltf.path.substring(0, gltf.path.lastIndexOf('/') + 1) + uri
+        Resources.LoadFile(path, null)
+          .then(buffer => {
+            console.assert(buffer.byteLength == bufferSize)
+            resolve(buffer)
+          })
+          .catch(error => {
+            reject(error)
+          })
       }
-
-      let buffer = Base64.Decode(base64)
-      console.assert(buffer.byteLength == bufferSize)
-      return buffer
-    } else {
-      // external bin
-
-    }
+    })
   }
 
-  static LoadBuffer(gltf, cache, bufferViewIndex) {
-    let bufferView = gltf.bufferViews[bufferViewIndex]
-    if (bufferView.buffer != null) {
-      if (cache.buffers[bufferView.buffer] == null) {
-        let buffer = gltf.buffers[bufferView.buffer]
+  static LoadGLTFBuffer(gltf, cache, index) {
+    return new Promise((resolve, reject) => {
+      if (cache.buffers[index] == null) {
+        let buffer = gltf.buffers[index]
         console.assert(buffer.byteLength > 0)
 
-        cache.buffers[bufferView.buffer] = new DataView(Resources.LoadUriData(buffer.uri, buffer.byteLength))
+        Resources.LoadUriData(gltf, cache, buffer.uri, buffer.byteLength)
+          .then(data => {
+            cache.buffers[index] = new DataView(data)
+            resolve(index)
+          })
+          .catch(error => {
+            reject(error)
+          })
       }
-    }
+    })
   }
 
   static AccessBuffer(gltf, cache, accessor, index, getFunc, getCount, getSize) {
     if (accessor.bufferView != null) {
-      Resources.LoadBuffer(gltf, cache, accessor.bufferView)
-
       let bufferView = gltf.bufferViews[accessor.bufferView]
       if (bufferView.buffer != null) {
         let stride = getCount * getSize
@@ -152,43 +166,52 @@ export default class Resources {
 
   static LoadGLTFTexture(gltf, cache, index) {
     return new Promise((resolve, reject) => {
-      if (cache.textures[index] != null) {
-        resolve(cache.textures[index])
-      }
+      if (cache.textures[index] == null) {
+        let texture = gltf.textures[index]
+        let sampler = null
 
-      let texture = gltf.textures[index]
-      let sampler = null
+        if (texture.sampler != null) {
+          sampler = gltf.samplers[texture.sampler]
+        }
 
-      if (texture.sampler != null) {
-        sampler = gltf.samplers[texture.sampler]
-      }
+        if (texture.source != null) {
+          let image = gltf.images[texture.source]
 
-      if (texture.source != null) {
-        let image = gltf.images[texture.source]
-
-        if (image.bufferView != null) {
-          // load buffer view image
-        } else {
-          if (Resources.IsImageUri(image.uri)) {
-            // load uri image
-            Resources.LoadImage(image.uri)
-              .then(img => {
-                let wrapMode = gl.CLAMP_TO_EDGE
-                if (sampler != null) {
-                  wrapMode = sampler.wrapS
-                }
-
-                let tex = new Texture2D(img.width, img.height, gl.LINEAR, wrapMode)
-                tex.setImage(img)
-
-                resolve(tex)
-              })
-              .catch(error => {
-                reject(error)
-              })
+          if (image.bufferView != null) {
+            // load buffer view image
           } else {
-            // load ext image
+            if (Resources.IsImageUri(image.uri)) {
+              // load uri image
+              Resources.LoadImage(image.uri)
+                .then(img => {
+                  let wrapMode = gl.CLAMP_TO_EDGE
+                  if (sampler != null) {
+                    wrapMode = sampler.wrapS
+                  }
 
+                  let tex = new Texture2D(img.width, img.height, gl.LINEAR, wrapMode)
+                  tex.setImage(img)
+
+                  cache.textures[index] = tex
+
+                  resolve(index)
+                })
+                .catch(error => {
+                  reject(error)
+                })
+            } else {
+              // load ext image
+              let path = gltf.path.substring(0, gltf.path.lastIndexOf('/') + 1) + image.uri
+              Resources.LoadTexture2D(path)
+                .then(tex => {
+                  cache.textures[index] = tex
+
+                  resolve(index)
+                })
+                .catch(error => {
+                  reject(error)
+                })
+            }
           }
         }
       }
@@ -258,15 +281,7 @@ export default class Resources {
               let textureIndex = material.pbrMetallicRoughness.baseColorTexture.index
               if (textureIndex != null) {
                 mat = Material.Create('UnlitTexture')
-                mat.setTexture2D('uTexture', Texture2D.GetDefaultTexture())
-                
-                Resources.LoadGLTFTexture(gltf, cache, textureIndex)
-                  .then(texture => {
-                    mat.setTexture2D('uTexture', texture)
-                  })
-                  .catch(error => {
-                    console.log(error)
-                  })
+                mat.setTexture2D('uTexture', cache.textures[textureIndex])
               }
             }
           }
@@ -401,9 +416,10 @@ export default class Resources {
 
   static LoadGLTF(path) {
     return new Promise((resolve, reject) => {
-      Resources.LoadFileUtf8(path)
+      Resources.LoadFile(path, 'utf8')
         .then(file => {
           let gltf = JSON.parse(file)
+          gltf.path = path
 
           let cache = {
             meshes: new Array(gltf.meshes.length),
@@ -414,19 +430,68 @@ export default class Resources {
             cache.textures = new Array(gltf.textures.length)
           }
 
-          let sceneIndex = 0
-          if (gltf.scene != null) {
-            sceneIndex = gltf.scene
+          let isBufferTextureLoaded = () => {
+            let loaded = true
+
+            for (let i = 0; i < cache.buffers.length; ++i) {
+              if (cache.buffers[i] == null) {
+                loaded = false
+                break
+              }
+            }
+
+            if (cache.textures != null) {
+              for (let i = 0; i < cache.textures.length; ++i) {
+                if (cache.textures[i] == null) {
+                  loaded = false
+                  break
+                }
+              }
+            }
+
+            return loaded
+          }
+          let loadScene = () => {
+            let sceneIndex = 0
+            if (gltf.scene != null) {
+              sceneIndex = gltf.scene
+            }
+
+            let scene = gltf.scenes[sceneIndex]
+            let entity = new Node()
+
+            for (let i of scene.nodes) {
+              Resources.LoadGLTFNode(gltf, cache, i, entity)
+            }
+
+            resolve(entity)
           }
 
-          let scene = gltf.scenes[sceneIndex]
-          let entity = new Node()
-
-          for (let i of scene.nodes) {
-            Resources.LoadGLTFNode(gltf, cache, i, entity)
+          for (let i = 0; i < cache.buffers.length; ++i) {
+            Resources.LoadGLTFBuffer(gltf, cache, i)
+              .then(index => {
+                if (isBufferTextureLoaded()) {
+                  loadScene()
+                }
+              })
+              .catch(error => {
+                reject(error)
+              })
           }
 
-          resolve(entity)
+          if (gltf.textures != null) {
+            for (let i = 0; i < cache.textures.length; ++i) {
+              Resources.LoadGLTFTexture(gltf, cache, i)
+                .then(index => {
+                  if (isBufferTextureLoaded()) {
+                    loadScene()
+                  }
+                })
+                .catch(error => {
+                  reject(error)
+                })
+            }
+          }
         })
         .catch(error => {
           reject(error)
