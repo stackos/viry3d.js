@@ -66,6 +66,14 @@ export default class Resources {
     })
   }
 
+  static WriteFile(path, data, encoding) {
+    wx.getFileSystemManager().writeFileSync(wx.env.USER_DATA_PATH + '/' + path, data, encoding)
+  }
+
+  static ReadFile(path, encoding) {
+    return wx.getFileSystemManager().readFileSync(wx.env.USER_DATA_PATH + '/' + path, encoding)
+  }
+
   static IsDataUri(uri) {
     return uri.startsWith('data:application/')
   }
@@ -179,6 +187,7 @@ export default class Resources {
 
           if (image.bufferView != null) {
             // load buffer view image
+            reject('load image from buffer not implement')
           } else {
             if (Resources.IsImageUri(image.uri)) {
               // load uri image
@@ -423,7 +432,7 @@ export default class Resources {
 
           let cache = {
             meshes: new Array(gltf.meshes.length),
-            buffers: new Array(gltf.buffers.length)
+            buffers: new Array(gltf.buffers.length),
           }
 
           if (gltf.textures != null) {
@@ -491,6 +500,111 @@ export default class Resources {
                   reject(error)
                 })
             }
+          }
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  static LoadGLTFBinary(path) {
+    return new Promise((resolve, reject) => {
+      Resources.LoadFile(path, null)
+        .then(bin => {
+          let dataView = new DataView(bin)
+          let magic = dataView.getUint32(0, true)
+          let version = dataView.getUint32(4, true)
+          let length = dataView.getUint32(8, true)
+
+          console.log('glb:', magic, version, length, dataView.buffer.byteLength)
+          console.assert(magic == 0x46546C67)
+          console.assert(version == 2)
+          console.assert(length == dataView.buffer.byteLength)
+
+          let gltf = null
+
+          let cache = {
+            meshes: new Array(),
+            buffers: new Array(),
+          }
+
+          // read chunks
+          let pos = 12
+          while (pos < length) {
+            let chunkLength = dataView.getUint32(pos, true); pos += 4
+            let chunkType = dataView.getUint32(pos, true); pos += 4
+            
+            console.log('chunk:', chunkLength, chunkType)
+            console.assert(pos + chunkLength <= length)
+
+            if (chunkType == 0x4E4F534A) {
+              // JSON
+              let json = ''
+              for (let i = 0; i < chunkLength; ++i) {
+                json += String.fromCharCode(dataView.getUint8(pos + i))
+              }
+              gltf = JSON.parse(json)
+
+              pos += chunkLength
+            } else if (chunkType == 0x004E4942) {
+              // BIN
+              cache.buffers.push(new DataView(dataView.buffer.slice(pos, pos + chunkLength)))
+
+              pos += chunkLength
+            }
+          }
+
+          if (gltf != null) {
+            console.assert(cache.buffers.length == gltf.buffers.length)
+
+            if (gltf.textures != null) {
+              cache.textures = new Array(gltf.textures.length)
+            }
+
+            let isTextureLoaded = () => {
+              let loaded = true
+
+              if (cache.textures != null) {
+                for (let i = 0; i < cache.textures.length; ++i) {
+                  if (cache.textures[i] == null) {
+                    loaded = false
+                    break
+                  }
+                }
+              }
+
+              return loaded
+            }
+            let loadScene = () => {
+              let sceneIndex = 0
+              if (gltf.scene != null) {
+                sceneIndex = gltf.scene
+              }
+
+              let scene = gltf.scenes[sceneIndex]
+              let entity = new Node()
+
+              for (let i of scene.nodes) {
+                Resources.LoadGLTFNode(gltf, cache, i, entity)
+              }
+
+              resolve(entity)
+            }
+
+            for (let i = 0; i < cache.textures.length; ++i) {
+              Resources.LoadGLTFTexture(gltf, cache, i)
+                .then(index => {
+                  if (isTextureLoaded()) {
+                    loadScene()
+                  }
+                })
+                .catch(error => {
+                  reject(error)
+                })
+            }
+          } else {
+            reject('load glb error')
           }
         })
         .catch(error => {
