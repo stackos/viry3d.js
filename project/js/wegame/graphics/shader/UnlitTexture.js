@@ -32,14 +32,10 @@ const rs = {
     Queue: Const.Geometry,
 }
 
-const UnlitTexture = {
-  passes: [
-    {
-      vs: vs,
-      fs: fs,
-      rs: rs,
-    },
-  ]
-}
-
-export default UnlitTexture
+export default [
+  {
+    vs: vs,
+    fs: fs,
+    rs: rs,
+  }
+]

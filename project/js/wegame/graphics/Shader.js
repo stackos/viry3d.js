@@ -20,8 +20,8 @@ export default class Shader {
 
   load(path) {
     let req = require(path)
-    if (req != null && req.default != null && req.default.passes != null) {
-      this.passes = req.default.passes
+    if (req != null && req.default != null) {
+      this.passes = req.default
     } else {
       console.log('load shader error: ' + path)
     }

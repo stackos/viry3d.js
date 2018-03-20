@@ -21,7 +21,7 @@ export default class App extends Application {
     this.camera = camera
 
     //Resources.LoadGLTF('assets/gltf/min.gltf')
-    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf')
+    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Embedded/Duck.gltf')
     //Resources.LoadGLTFBinary('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb')
       .then(node => {
         this.sceneNode = node

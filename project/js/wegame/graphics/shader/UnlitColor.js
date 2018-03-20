@@ -28,14 +28,10 @@ const rs = {
     Queue: Const.Geometry,
 }
 
-const UnlitColor = {
-  passes: [
-    {
-      vs: vs,
-      fs: fs,
-      rs: rs,
-    },
-  ]
-}
-
-export default UnlitColor
+export default [
+  {
+    vs: vs,
+    fs: fs,
+    rs: rs,
+  }
+]
