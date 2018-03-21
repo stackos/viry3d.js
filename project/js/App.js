@@ -20,15 +20,10 @@ export default class App extends Application {
     camera.setFar(1000)
     this.camera = camera
 
-    //Resources.LoadGLTF('assets/gltf/min.gltf')
-    //Resources.LoadGLTF('assets/gltf/BoomBox/glTF/BoomBox.gltf')
-    //Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf')
-    //Resources.LoadGLTFBinary('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb')
-    Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/project/assets/gltf/BoomBox/glTF/BoomBox.gltf')
+    Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/BoomBox/glTF/BoomBox.gltf')
       .then(node => {
         this.sceneNode = node
         this.sceneNode.setLocalScale(new Vector3(100, 100, 100))
-        //this.sceneNode.setLocalScale(new Vector3(0.01, 0.01, 0.01))
       })
       .catch(error => {
         console.error(error)
