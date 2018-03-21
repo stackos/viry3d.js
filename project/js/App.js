@@ -12,7 +12,7 @@ export default class App extends Application {
 
   init() {
     let camera = new Camera(canvas.width, canvas.height)
-    camera.setLocalPosition(new Vector3(0, 2, -5))
+    camera.setLocalPosition(new Vector3(0, 2, -7))
     camera.setLocalRotation(Quaternion.Euler(15, 0, 0))
     camera.setClearColor(0, 0, 0, 1)
     camera.setFov(45)
@@ -21,11 +21,12 @@ export default class App extends Application {
     this.camera = camera
 
     //Resources.LoadGLTF('assets/gltf/min.gltf')
-    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Embedded/Duck.gltf')
+    //Resources.LoadGLTF('assets/gltf/BoomBox/glTF/BoomBox.gltf')
+    Resources.LoadGLTF('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf')
     //Resources.LoadGLTFBinary('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb')
       .then(node => {
         this.sceneNode = node
-        this.sceneNode.setLocalScale(new Vector3(0.01, 0.01, 0.01))
+        this.sceneNode.setLocalScale(new Vector3(100, 100, 100))
       })
       .catch(error => {
         console.error(error)
