@@ -25,7 +25,7 @@ export default class MeshRenderer extends Renderer {
 
         if (this.mesh.hasAttrib(Mesh.VERTEX_POSITION)) {
           attribs.push({
-            name: 'aPosition',
+            name: 'a_Position',
             count: 3,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -34,7 +34,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_UV)) {
           attribs.push({
-            name: 'aUV',
+            name: 'a_UV',
             count: 2,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -43,7 +43,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_UV2)) {
           attribs.push({
-            name: 'aUV2',
+            name: 'a_UV2',
             count: 2,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -52,7 +52,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_COLOR)) {
           attribs.push({
-            name: 'aColor',
+            name: 'a_Color',
             count: 4,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -61,7 +61,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_NORMAL)) {
           attribs.push({
-            name: 'aNormal',
+            name: 'a_Normal',
             count: 3,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -70,7 +70,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_TANGENT)) {
           attribs.push({
-            name: 'aTangent',
+            name: 'a_Tangent',
             count: 4,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),
@@ -79,7 +79,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_BONE_INDICES)) {
           attribs.push({
-            name: 'aBoneIndices',
+            name: 'a_BoneIndices',
             count: 4,
             type: gl.SHORT,
             stride: this.mesh.getVertexStride(),
@@ -88,7 +88,7 @@ export default class MeshRenderer extends Renderer {
         }
         if (this.mesh.hasAttrib(Mesh.VERTEX_BONE_WEIGHTS)) {
           attribs.push({
-            name: 'aBoneWeights',
+            name: 'a_BoneWeights',
             count: 4,
             type: gl.FLOAT,
             stride: this.mesh.getVertexStride(),

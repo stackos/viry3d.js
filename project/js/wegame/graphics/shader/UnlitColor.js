@@ -1,20 +1,20 @@
 import Const from './Const'
 
 const vs = `
-  uniform mat4 uMVP;
-  attribute vec4 aPosition;
+  uniform mat4 u_MVPMatrix;
+  attribute vec4 a_Position;
   void main()
   {
-    gl_Position = aPosition * uMVP;
+    gl_Position = u_MVPMatrix * a_Position;
   }
 `
 
 const fs = `
   precision mediump float;
-  uniform vec4 uColor;
+  uniform vec4 u_BaseColorFactor;
   void main()
   {
-    gl_FragColor = uColor;
+    gl_FragColor = u_BaseColorFactor;
   }
 `
 

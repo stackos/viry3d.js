@@ -286,11 +286,29 @@ export default class Resources {
         if (p.material != null) {
           let material = gltf.materials[p.material]
           if (material.pbrMetallicRoughness != null) {
-            if (material.pbrMetallicRoughness.baseColorTexture != null) {
-              let textureIndex = material.pbrMetallicRoughness.baseColorTexture.index
-              if (textureIndex != null) {
+            let pbr = material.pbrMetallicRoughness
+            if (pbr.baseColorTexture != null) {
+              if (pbr.metallicRoughnessTexture != null) {
+                mat = Material.Create('PBR')
+
+                let metallic = (pbr.metallicFactor != null) ? pbr.metallicFactor : 1.0;
+                let roughness = (pbr.roughnessFactor != null) ? pbr.roughnessFactor : 1.0;
+                mat.setVector2('u_MetallicRoughnessValues', new Vector2(metallic, roughness))
+                mat.setTexture2D('u_MetallicRoughnessSampler', cache.textures[pbr.metallicRoughnessTexture.index])
+                mat.setTexture2D('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
+
+                let baseColorFactor = (pbr.baseColorFactor != null) ? new Color(pbr.baseColorFactor[0], pbr.baseColorFactor[1], pbr.baseColorFactor[2], pbr.baseColorFactor[3]) : new Color(1, 1, 1, 1)
+                mat.setColor('u_BaseColorFactor', baseColorFactor)
+
+                let normalTexture = (material.normalTexture != null) ? cache.textures[material.normalTexture.index] : Texture2D.GetDefaultNormalTexture()
+                mat.setTexture2D('u_NormalSampler', normalTexture)
+
+                let normalScale = (material.normalTexture != null && material.normalTexture.scale != null) ? material.normalTexture.scale : 1.0
+                mat.setFloat('u_NormalScale', normalScale)
+                
+              } else {
                 mat = Material.Create('UnlitTexture')
-                mat.setTexture2D('uTexture', cache.textures[textureIndex])
+                mat.setTexture2D('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
               }
             }
           }
@@ -298,7 +316,7 @@ export default class Resources {
 
         if (mat == null) {
           mat = Material.Create('UnlitColor')
-          mat.setColor('uColor', new Color(1, 1, 1, 1))
+          mat.setColor('u_BaseColorFactor', new Color(1, 1, 1, 1))
         }
 
         materials.push(mat)
@@ -429,6 +447,8 @@ export default class Resources {
         .then(file => {
           let gltf = JSON.parse(file)
           gltf.path = path
+
+          console.log(gltf)
 
           let cache = {
             meshes: new Array(gltf.meshes.length),

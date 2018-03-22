@@ -142,6 +142,17 @@ export default class Matrix4 {
     return m
   }
 
+  tranposed() {
+    let m = new Matrix4()
+
+    m.array[0] = this.array[0]; m.array[1] = this.array[4]; m.array[2] = this.array[8]; m.array[3] = this.array[12]
+    m.array[4] = this.array[1]; m.array[5] = this.array[5]; m.array[6] = this.array[9]; m.array[7] = this.array[13]
+    m.array[8] = this.array[2]; m.array[9] = this.array[6]; m.array[10] = this.array[10]; m.array[11] = this.array[14]
+    m.array[12] = this.array[3]; m.array[13] = this.array[7]; m.array[14] = this.array[11]; m.array[15] = this.array[15]
+
+    return m
+  }
+
   static Translation(t) {
     let m = new Matrix4()
 

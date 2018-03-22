@@ -45,12 +45,21 @@ export default class Texture2D extends Texture {
     gl.bindTexture(this.target, null)
   }
 
-  static GetDefaultTexture() {
-    if (Texture2D.defaultTexture == null) {
-      Texture2D.defaultTexture = new Texture2D(1, 1)
-      Texture2D.defaultTexture.setPixels(new Uint8Array([255, 255, 255, 255]))
+  static GetDefaultWhiteTexture() {
+    if (Texture2D.defaultWhiteTexture == null) {
+      Texture2D.defaultWhiteTexture = new Texture2D(1, 1)
+      Texture2D.defaultWhiteTexture.setPixels(new Uint8Array([255, 255, 255, 255]))
     }
 
-    return Texture2D.defaultTexture
+    return Texture2D.defaultWhiteTexture
+  }
+
+  static GetDefaultNormalTexture() {
+    if (Texture2D.defaultNormalTexture == null) {
+      Texture2D.defaultNormalTexture = new Texture2D(1, 1)
+      Texture2D.defaultNormalTexture.setPixels(new Uint8Array([128, 128, 255, 255]))
+    }
+
+    return Texture2D.defaultNormalTexture
   }
 }

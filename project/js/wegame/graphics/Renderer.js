@@ -53,6 +53,8 @@ export default class Renderer extends Node {
     let view = camera.getViewMatrix()
     let proj = camera.getProjectionMatrix()
     let mvp = proj.multiply(view).multiply(model)
+    let normalMatrix = model.inversed().tranposed()
+    let cameraPos = camera.getPosition()
 
     let vb = this.getVertexBuffer()
     let attribs = this.getVertexAttribs()
@@ -70,8 +72,13 @@ export default class Renderer extends Node {
       let shader = material.getShader()
       let range = this.getIndexRange(i)
 
-      material.setMatrix('uMVP', mvp.data())
-
+      material.setMatrix('u_MVPMatrix', mvp)
+      material.setMatrix('u_ModelMatrix', model)
+      material.setMatrix('u_NormalMatrix', normalMatrix)
+      material.setVector3('u_Camera', cameraPos)
+      material.setVector3('u_LightDirection', { copy: function () { return { x: 0.0, y: 0.5, z: 0.5 } } })
+      material.setColor('u_LightColor', { copy: function () { return { r: 1, g: 1, b: 1, a: 1 } } })
+      
       for (let j = 0; j < shader.getPassCount(); ++j) {
         let program = shader.getProgram(j)
 

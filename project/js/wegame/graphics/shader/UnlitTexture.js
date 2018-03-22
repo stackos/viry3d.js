@@ -1,24 +1,24 @@
 import Const from './Const'
 
 const vs = `
-  uniform mat4 uMVP;
-  attribute vec4 aPosition;
-  attribute vec2 aUV;
-  varying vec2 vUV;
+  uniform mat4 u_MVPMatrix;
+  attribute vec4 a_Position;
+  attribute vec2 a_UV;
+  varying vec2 v_UV;
   void main()
   {
-    gl_Position = aPosition * uMVP;
-    vUV = aUV;
+    gl_Position = u_MVPMatrix * a_Position;
+    v_UV = a_UV;
   }
 `
 
 const fs = `
   precision mediump float;
-  uniform sampler2D uTexture;
-  varying vec2 vUV;
+  uniform sampler2D u_BaseColorSampler;
+  varying vec2 v_UV;
   void main()
   {
-    gl_FragColor = texture2D(uTexture, vUV);
+    gl_FragColor = texture2D(u_BaseColorSampler, v_UV);
   }
 `
 

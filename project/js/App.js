@@ -20,7 +20,8 @@ export default class App extends Application {
     camera.setFar(1000)
     this.camera = camera
 
-    Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/BoomBox/glTF/BoomBox.gltf')
+    Resources.LoadGLTF('assets/gltf/BoomBox/glTF/BoomBox.gltf')
+    //Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/BoomBox/glTF/BoomBox.gltf')
       .then(node => {
         this.sceneNode = node
         this.sceneNode.setLocalScale(new Vector3(100, 100, 100))
