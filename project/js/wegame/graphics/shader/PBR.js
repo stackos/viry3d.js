@@ -2,7 +2,7 @@ import Const from './Const'
 
 const vs = `
   attribute vec4 a_Position;
-  attribute vec4 a_Normal;
+  attribute vec3 a_Normal;
   attribute vec4 a_Tangent;
   attribute vec2 a_UV;
 
@@ -19,7 +19,7 @@ const vs = `
     vec4 pos = u_ModelMatrix * a_Position;
     v_Position = vec3(pos.xyz) / pos.w;
 
-    vec3 normalW = normalize(vec3(u_NormalMatrix * vec4(a_Normal.xyz, 0.0)));
+    vec3 normalW = normalize(vec3(u_NormalMatrix * vec4(a_Normal, 0.0)));
     vec3 tangentW = normalize(vec3(u_ModelMatrix * vec4(a_Tangent.xyz, 0.0)));
     vec3 bitangentW = cross(normalW, tangentW) * a_Tangent.w;
     v_TBN = mat3(tangentW, bitangentW, normalW);
@@ -150,7 +150,7 @@ const fs = `
 
       vec3 n = getNormal();                             // normal at surface point
       vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-      vec3 l = normalize(u_LightDirection);             // Vector from surface point to light
+      vec3 l = normalize(-u_LightDirection);            // Vector from surface point to light
       vec3 h = normalize(l + v);                        // Half vector between both l and v
       vec3 reflection = -normalize(reflect(v, n));
 
@@ -192,7 +192,7 @@ const fs = `
       //gl_FragColor = vec4(perceptualRoughness, metallic, 1, 1);
       //gl_FragColor = baseColor;
       //gl_FragColor = vec4(n, 1);
-      gl_FragColor = vec4(color, 1);
+      gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
 
 
 

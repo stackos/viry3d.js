@@ -76,7 +76,7 @@ export default class Renderer extends Node {
       material.setMatrix('u_ModelMatrix', model)
       material.setMatrix('u_NormalMatrix', normalMatrix)
       material.setVector3('u_Camera', cameraPos)
-      material.setVector3('u_LightDirection', { copy: function () { return { x: 0.0, y: 0.5, z: 0.5 } } })
+      material.setVector3('u_LightDirection', { copy: function () { return { x: 1.0, y: -1.0, z: 1.0 } } })
       material.setColor('u_LightColor', { copy: function () { return { r: 1, g: 1, b: 1, a: 1 } } })
       
       for (let j = 0; j < shader.getPassCount(); ++j) {

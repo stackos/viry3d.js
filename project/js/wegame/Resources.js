@@ -305,7 +305,16 @@ export default class Resources {
 
                 let normalScale = (material.normalTexture != null && material.normalTexture.scale != null) ? material.normalTexture.scale : 1.0
                 mat.setFloat('u_NormalScale', normalScale)
-                
+
+                // u_brdfLUT
+                // u_DiffuseEnvSampler
+                // u_SpecularEnvSampler
+
+                // u_OcclusionSampler
+                // u_OcclusionStrength
+
+                // u_EmissiveSampler
+                // u_EmissiveFactor
               } else {
                 mat = Material.Create('UnlitTexture')
                 mat.setTexture2D('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
@@ -357,7 +366,7 @@ export default class Resources {
     }
     for (let i = 0; i < normals.length; ++i) {
       let vs = normals[i]
-      meshOut.setNormal(i, new Vector3(vs[0], vs[1], vs[2]))
+      meshOut.setNormal(i, new Vector3(vs[0], vs[1], -vs[2]))
     }
     for (let i = 0; i < tangents.length; ++i) {
       let vs = tangents[i]
