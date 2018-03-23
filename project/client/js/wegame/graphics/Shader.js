@@ -4,7 +4,7 @@ export default class Shader {
   static Find(name) {
     let shader = Shader.shaders.get(name)
     if (shader == null) {
-      shader = new Shader()
+      shader = new Shader(name)
       shader.load('./shader/' + name + '.js')
       shader.compile()
 
@@ -14,8 +14,12 @@ export default class Shader {
     return shader
   }
 
-  constructor() {
+  constructor(name) {
+    this.name = name
+  }
 
+  getName() {
+    return this.name
   }
 
   load(path) {

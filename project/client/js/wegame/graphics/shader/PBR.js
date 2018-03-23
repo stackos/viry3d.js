@@ -42,7 +42,7 @@ const fs = `
   uniform sampler2D u_NormalSampler;
   uniform float u_NormalScale;
   uniform sampler2D u_EmissiveSampler;
-  uniform vec3 u_EmissiveFactor;
+  uniform vec4 u_EmissiveFactor;
   uniform sampler2D u_MetallicRoughnessSampler;
   uniform sampler2D u_OcclusionSampler;
   uniform float u_OcclusionStrength;
@@ -187,16 +187,6 @@ const fs = `
       // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
       vec3 color = NdotL * u_LightColor.rgb * (diffuseContrib + specContrib);
 
-
-
-      //gl_FragColor = vec4(perceptualRoughness, metallic, 1, 1);
-      //gl_FragColor = baseColor;
-      //gl_FragColor = vec4(n, 1);
-      gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
-
-
-
-/*
       // Calculate lighting contribution from image based lighting source (IBL)
       color += getIBLContribution(pbrInputs, n, reflection);
 
@@ -204,11 +194,10 @@ const fs = `
       float ao = texture2D(u_OcclusionSampler, v_UV).r;
       color = mix(color, color * ao, u_OcclusionStrength);
 
-      vec3 emissive = SRGBtoLINEAR(texture2D(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor;
+      vec3 emissive = SRGBtoLINEAR(texture2D(u_EmissiveSampler, v_UV)).rgb * u_EmissiveFactor.rgb;
       color += emissive;
 
       gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), baseColor.a);
-*/
   }
 `
 

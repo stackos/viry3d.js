@@ -1,5 +1,9 @@
 {
 	"description": "项目配置文件。",
+	"client": "./client",
+	"svr": "./server",
+	"miniprogramRoot": "./client",
+	"qcloudRoot": "./server",
 	"setting": {
 		"urlCheck": false,
 		"es6": true,
@@ -9,9 +13,9 @@
 	},
 	"compileType": "game",
 	"libVersion": "game",
-	"appid": "touristappid",
+	"appid": "wx87deb9b2af60c485",
 	"projectname": "wegame.js",
-	"isGameTourist": true,
+	"isGameTourist": false,
 	"condition": {
 		"search": {
 			"current": -1,

@@ -10,7 +10,7 @@ import Quaternion from './math/Quaternion'
 import Color from './math/Color'
 import Base64 from './Base64'
 
-export default class Resources {
+class Resources {
   static LoadImage(path) {
     return new Promise((resolve, reject) => {
       let image = new Image()
@@ -24,11 +24,11 @@ export default class Resources {
     })
   }
 
-  static LoadTexture2D(path) {
+  static LoadTexture2D(path, filterMode = gl.LINEAR, wrapMode = gl.CLAMP_TO_EDGE, mipmap = true) {
     return new Promise((resolve, reject) => {
       Resources.LoadImage(path)
         .then(image => {
-          let texture = new Texture2D(image.width, image.height)
+          let texture = new Texture2D(image.width, image.height, filterMode, wrapMode, mipmap)
           texture.setImage(image)
           resolve(texture)
         })
@@ -294,30 +294,33 @@ export default class Resources {
                 let metallic = (pbr.metallicFactor != null) ? pbr.metallicFactor : 1.0;
                 let roughness = (pbr.roughnessFactor != null) ? pbr.roughnessFactor : 1.0;
                 mat.setVector2('u_MetallicRoughnessValues', new Vector2(metallic, roughness))
-                mat.setTexture2D('u_MetallicRoughnessSampler', cache.textures[pbr.metallicRoughnessTexture.index])
-                mat.setTexture2D('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
+                mat.setTexture('u_MetallicRoughnessSampler', cache.textures[pbr.metallicRoughnessTexture.index])
+                mat.setTexture('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
+                mat.setTexture('u_brdfLUT', cache.brdfLUT)
 
                 let baseColorFactor = (pbr.baseColorFactor != null) ? new Color(pbr.baseColorFactor[0], pbr.baseColorFactor[1], pbr.baseColorFactor[2], pbr.baseColorFactor[3]) : new Color(1, 1, 1, 1)
                 mat.setColor('u_BaseColorFactor', baseColorFactor)
 
                 let normalTexture = (material.normalTexture != null) ? cache.textures[material.normalTexture.index] : Texture2D.GetDefaultNormalTexture()
-                mat.setTexture2D('u_NormalSampler', normalTexture)
+                mat.setTexture('u_NormalSampler', normalTexture)
 
                 let normalScale = (material.normalTexture != null && material.normalTexture.scale != null) ? material.normalTexture.scale : 1.0
                 mat.setFloat('u_NormalScale', normalScale)
 
-                // u_brdfLUT
-                // u_DiffuseEnvSampler
-                // u_SpecularEnvSampler
+                let occlusionTexture = (material.occlusionTexture != null) ? cache.textures[material.occlusionTexture.index] : Texture2D.GetDefaultWhiteTexture()
+                mat.setTexture('u_OcclusionSampler', occlusionTexture)
 
-                // u_OcclusionSampler
-                // u_OcclusionStrength
+                let occlusionStrength = (material.occlusionTexture != null && material.occlusionTexture.strength != null) ? material.occlusionTexture.strength : 1.0
+                mat.setFloat('u_OcclusionStrength', occlusionStrength)
 
-                // u_EmissiveSampler
-                // u_EmissiveFactor
+                let emissiveTexture = (material.emissiveTexture != null) ? cache.textures[material.emissiveTexture.index] : Texture2D.GetDefaultBlackTexture()
+                mat.setTexture('u_EmissiveSampler', emissiveTexture)
+
+                let emissiveFactor = (material.emissiveFactor != null) ? new Color(material.emissiveFactor[0], material.emissiveFactor[1], material.emissiveFactor[2], 1) : new Color(0, 0, 0, 1)
+                mat.setColor('u_EmissiveFactor', emissiveFactor)
               } else {
                 mat = Material.Create('UnlitTexture')
-                mat.setTexture2D('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
+                mat.setTexture('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
               }
             }
           }
@@ -457,8 +460,6 @@ export default class Resources {
           let gltf = JSON.parse(file)
           gltf.path = path
 
-          console.log(gltf)
-
           let cache = {
             meshes: new Array(gltf.meshes.length),
             buffers: new Array(gltf.buffers.length),
@@ -485,6 +486,10 @@ export default class Resources {
                   break
                 }
               }
+            }
+
+            if (cache.brdfLUT == null) {
+              loaded = false
             }
 
             return loaded
@@ -530,6 +535,14 @@ export default class Resources {
                 })
             }
           }
+
+          Texture2D.GetBrdfLUT()
+            .then(tex => {
+              cache.brdfLUT = tex
+            })
+            .catch(error => {
+              reject(error)
+            })
         })
         .catch(error => {
           reject(error)
@@ -603,6 +616,10 @@ export default class Resources {
                 }
               }
 
+              if (cache.brdfLUT == null) {
+                loaded = false
+              }
+
               return loaded
             }
             let loadScene = () => {
@@ -632,6 +649,14 @@ export default class Resources {
                   reject(error)
                 })
             }
+
+            Texture2D.GetBrdfLUT()
+              .then(tex => {
+                cache.brdfLUT = tex
+              })
+              .catch(error => {
+                reject(error)
+              })
           } else {
             reject('load glb error')
           }
@@ -642,3 +667,5 @@ export default class Resources {
     })
   }
 }
+
+window.Resources = Resources

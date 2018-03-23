@@ -2,25 +2,7 @@ import Texture from './Texture'
 
 export default class Texture2D extends Texture {
   constructor(width, height, filterMode = gl.LINEAR, wrapMode = gl.CLAMP_TO_EDGE, mipmap = true) {
-    super(width, height, filterMode, wrapMode, mipmap)
-    this.target = gl.TEXTURE_2D
-
-    gl.bindTexture(this.target, this.getTexture())
-    gl.texParameterf(this.target, gl.TEXTURE_MAG_FILTER, filterMode)
-    if (mipmap) {
-      if (filterMode == gl.NEAREST) {
-        gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST)
-      } else if (filterMode == gl.LINEAR) {
-        gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-      }
-    } else {
-      gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, filterMode)
-    }
-
-    gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, wrapMode)
-    gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, wrapMode)
-
-    gl.bindTexture(this.target, null)
+    super(gl.TEXTURE_2D, width, height, filterMode, wrapMode, mipmap)
   }
 
   setImage(image) {
@@ -54,6 +36,15 @@ export default class Texture2D extends Texture {
     return Texture2D.defaultWhiteTexture
   }
 
+  static GetDefaultBlackTexture() {
+    if (Texture2D.defaultBlackTexture == null) {
+      Texture2D.defaultBlackTexture = new Texture2D(1, 1)
+      Texture2D.defaultBlackTexture.setPixels(new Uint8Array([0, 0, 0, 255]))
+    }
+
+    return Texture2D.defaultWhiteTexture
+  }
+
   static GetDefaultNormalTexture() {
     if (Texture2D.defaultNormalTexture == null) {
       Texture2D.defaultNormalTexture = new Texture2D(1, 1)
@@ -61,5 +52,22 @@ export default class Texture2D extends Texture {
     }
 
     return Texture2D.defaultNormalTexture
+  }
+
+  static GetBrdfLUT() {
+    return new Promise((resolve, reject) => {
+      if (Texture2D.brdfLUT == null) {
+        Resources.LoadTexture2D('assets/texture/brdfLUT.png', gl.LINEAR, gl.CLAMP_TO_EDGE, false)
+          .then(tex => {
+            Texture2D.brdfLUT = tex
+            resolve(tex)
+          })
+          .catch(error => {
+            reject(error)
+          })
+      } else {
+        resolve(Texture2D.brdfLUT)
+      }
+    })
   }
 }

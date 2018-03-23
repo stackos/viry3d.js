@@ -1,3 +1,5 @@
+require('./Resources')
+
 export default class Application {
   constructor() {
     window.gl = canvas.getContext('webgl',

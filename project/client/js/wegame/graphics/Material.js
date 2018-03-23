@@ -8,8 +8,7 @@ const PropertyType = {
   Vector4: 4,
   Matrix: 5,
   Color: 6,
-  Texture2D: 7,
-  Cubemap: 8,
+  Texture: 7,
 }
 
 export default class Material {
@@ -76,9 +75,9 @@ export default class Material {
     })
   }
 
-  setTexture2D(name, texture) {
+  setTexture(name, texture) {
     this.properties.set(name, {
-      type: PropertyType.Texture2D,
+      type: PropertyType.Texture,
       value: texture
     })
   }
@@ -128,9 +127,10 @@ export default class Material {
             gl.uniform4f(loc, color.r, color.g, color.b, color.a)
             break
           }
-          case PropertyType.Texture2D: {
+          case PropertyType.Texture: {
+            let texture = property.value
             gl.activeTexture(gl.TEXTURE0 + textureIndex)
-            gl.bindTexture(gl.TEXTURE_2D, property.value.getTexture())
+            gl.bindTexture(texture.getTarget(), texture.getTexture())
             gl.uniform1i(loc, textureIndex)
             textureIndex++
             break
