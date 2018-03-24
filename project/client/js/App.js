@@ -49,7 +49,7 @@ export default class App extends Application {
         }
 
         //return Resources.LoadGLTF('assets/gltf/BoomBox/glTF/BoomBox.gltf')
-        return Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/BoomBox/glTF/BoomBox.gltf')
+        return Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf')
       })
       .then(node => {
         this.sceneNode = node
