@@ -31,16 +31,34 @@ export default class Shader {
     }
   }
 
+  getDefines() {
+    let defines = new Array()
+
+    let ext_texture_lod = gl.getExtension('EXT_shader_texture_lod')
+    if (ext_texture_lod != null) {
+      defines.push('HAS_TEX_LOD')
+    }
+
+    let definesStr = ''
+    for (let i = 0; i < defines.length; ++i) {
+      definesStr += '#define ' + defines[i] + ' 1\n'
+    }
+
+    return definesStr
+  }
+
   compile() {
     if (this.passes == null) {
       return
     }
 
+    let defines = this.getDefines()
+
     for (let i = 0; i < this.passes.length; ++i) {
       let pass = this.passes[i]
 
-      let vs = Shader.CreateGLShader(pass.vs, gl.VERTEX_SHADER)
-      let fs = Shader.CreateGLShader(pass.fs, gl.FRAGMENT_SHADER)
+      let vs = Shader.CreateGLShader(defines + pass.vs, gl.VERTEX_SHADER)
+      let fs = Shader.CreateGLShader(defines + pass.fs, gl.FRAGMENT_SHADER)
 
       if (vs != null && fs != null) {
         let program = gl.createProgram()

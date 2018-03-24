@@ -31,6 +31,8 @@ const vs = `
 `
 
 const fs = `
+  #extension GL_EXT_shader_texture_lod: enable
+
   precision highp float;
 
   uniform vec3 u_LightDirection;
@@ -93,7 +95,13 @@ const fs = `
       float lod = (pbrInputs.perceptualRoughness * mipCount);
       vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).rgb;
       vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, n)).rgb;
+
+#ifdef HAS_TEX_LOD
+      vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, reflection, lod)).rgb;
+#else
       vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, reflection)).rgb;
+#endif
+
       vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
       vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y);
       return diffuse + specular;
