@@ -1,7 +1,7 @@
 import Texture from './Texture'
 
 export default class Cubemap extends Texture {
-  constructor(width, height, filterMode = gl.LINEAR, wrapMode = gl.CLAMP_TO_EDGE, mipmap = true) {
+  constructor(width, height, filterMode = gl.LINEAR, wrapMode = gl.REPEAT, mipmap = true) {
     super(gl.TEXTURE_CUBE_MAP, width, height, filterMode, wrapMode, mipmap)
   }
 

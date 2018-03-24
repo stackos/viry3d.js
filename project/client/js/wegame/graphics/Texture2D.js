@@ -1,7 +1,7 @@
 import Texture from './Texture'
 
 export default class Texture2D extends Texture {
-  constructor(width, height, filterMode = gl.LINEAR, wrapMode = gl.CLAMP_TO_EDGE, mipmap = true) {
+  constructor(width, height, filterMode = gl.LINEAR, wrapMode = gl.REPEAT, mipmap = true) {
     super(gl.TEXTURE_2D, width, height, filterMode, wrapMode, mipmap)
   }
 
@@ -57,7 +57,7 @@ export default class Texture2D extends Texture {
   static GetBrdfLUT() {
     return new Promise((resolve, reject) => {
       if (Texture2D.brdfLUT == null) {
-        Resources.LoadTexture2D('assets/texture/brdfLUT.png', gl.LINEAR, gl.CLAMP_TO_EDGE, false)
+        Resources.LoadTexture2D('assets/texture/brdfLUT.png', gl.LINEAR, gl.REPEAT, false)
           .then(tex => {
             Texture2D.brdfLUT = tex
             resolve(tex)

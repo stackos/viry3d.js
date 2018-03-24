@@ -24,7 +24,7 @@ class Resources {
     })
   }
 
-  static LoadTexture2D(path, filterMode = gl.LINEAR, wrapMode = gl.CLAMP_TO_EDGE, mipmap = true) {
+  static LoadTexture2D(path, filterMode = gl.LINEAR, wrapMode = gl.REPEAT, mipmap = true) {
     return new Promise((resolve, reject) => {
       Resources.LoadImage(path)
         .then(image => {
@@ -182,6 +182,11 @@ class Resources {
           sampler = gltf.samplers[texture.sampler]
         }
 
+        let wrapMode = gl.REPEAT
+        if (sampler != null) {
+          wrapMode = sampler.wrapS
+        }
+
         if (texture.source != null) {
           let image = gltf.images[texture.source]
 
@@ -193,11 +198,6 @@ class Resources {
               // load uri image
               Resources.LoadImage(image.uri)
                 .then(img => {
-                  let wrapMode = gl.CLAMP_TO_EDGE
-                  if (sampler != null) {
-                    wrapMode = sampler.wrapS
-                  }
-
                   let tex = new Texture2D(img.width, img.height, gl.LINEAR, wrapMode)
                   tex.setImage(img)
 
@@ -211,7 +211,7 @@ class Resources {
             } else {
               // load ext image
               let path = gltf.path.substring(0, gltf.path.lastIndexOf('/') + 1) + image.uri
-              Resources.LoadTexture2D(path)
+              Resources.LoadTexture2D(path, gl.LINEAR, wrapMode)
                 .then(tex => {
                   cache.textures[index] = tex
 
@@ -288,7 +288,7 @@ class Resources {
           if (material.pbrMetallicRoughness != null) {
             let pbr = material.pbrMetallicRoughness
             if (pbr.baseColorTexture != null) {
-              if (pbr.metallicRoughnessTexture != null) {
+              if (pbr.metallicRoughnessTexture != null && normals.length > 0 && tangents.length > 0 && uv.length > 0) {
                 mat = Material.Create('PBR')
 
                 let metallic = (pbr.metallicFactor != null) ? pbr.metallicFactor : 1.0;

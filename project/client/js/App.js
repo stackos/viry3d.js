@@ -38,18 +38,18 @@ export default class App extends Application {
 
     Promise.all(cubemapImages)
       .then(images => {
-        this.diffuseCubemap = new Cubemap(images[0].width, images[0].height, gl.LINEAR, gl.CLAMP_TO_EDGE, false)
+        this.diffuseCubemap = new Cubemap(images[0].width, images[0].height, gl.LINEAR, gl.REPEAT, false)
         for (let i = 0; i < 6; ++i) {
           this.diffuseCubemap.setImage(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, images[i], 0)
         }
 
-        this.specularCubemap = new Cubemap(images[6].width, images[6].height, gl.LINEAR, gl.CLAMP_TO_EDGE, false)
+        this.specularCubemap = new Cubemap(images[6].width, images[6].height, gl.LINEAR, gl.REPEAT, false)
         for (let i = 0; i < 6; ++i) {
           this.specularCubemap.setImage(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, images[6 + i], 0)
         }
 
         //return Resources.LoadGLTF('assets/gltf/BoomBox/glTF/BoomBox.gltf')
-        return Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf')
+        return Resources.LoadGLTF('https://raw.githubusercontent.com/stackos/wegame.js/master/assets/gltf/BoomBox/glTF/BoomBox.gltf')
       })
       .then(node => {
         this.sceneNode = node
