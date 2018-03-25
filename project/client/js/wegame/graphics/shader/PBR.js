@@ -41,15 +41,16 @@ const fs = `
   uniform samplerCube u_SpecularEnvSampler;
   uniform sampler2D u_brdfLUT;
   uniform sampler2D u_BaseColorSampler;
+  uniform vec4 u_BaseColorFactor;
   uniform sampler2D u_NormalSampler;
   uniform float u_NormalScale;
   uniform sampler2D u_EmissiveSampler;
   uniform vec4 u_EmissiveFactor;
   uniform sampler2D u_MetallicRoughnessSampler;
+  uniform float u_Metallic;
+  uniform float u_Roughness;
   uniform sampler2D u_OcclusionSampler;
   uniform float u_OcclusionStrength;
-  uniform vec2 u_MetallicRoughnessValues;
-  uniform vec4 u_BaseColorFactor;
   uniform vec3 u_Camera;
 
   varying vec3 v_Position;
@@ -136,8 +137,8 @@ const fs = `
 
   void main()
   {
-      float perceptualRoughness = u_MetallicRoughnessValues.y;
-      float metallic = u_MetallicRoughnessValues.x;
+      float perceptualRoughness = u_Roughness;
+      float metallic = u_Metallic;
 
       vec4 mrSample = texture2D(u_MetallicRoughnessSampler, v_UV);
       perceptualRoughness = mrSample.g * perceptualRoughness;

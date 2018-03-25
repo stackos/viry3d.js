@@ -293,7 +293,8 @@ class Resources {
 
                 let metallic = (pbr.metallicFactor != null) ? pbr.metallicFactor : 1.0;
                 let roughness = (pbr.roughnessFactor != null) ? pbr.roughnessFactor : 1.0;
-                mat.setVector2('u_MetallicRoughnessValues', new Vector2(metallic, roughness))
+                mat.setFloat('u_Metallic', metallic)
+                mat.setFloat('u_Roughness', roughness)
                 mat.setTexture('u_MetallicRoughnessSampler', cache.textures[pbr.metallicRoughnessTexture.index])
                 mat.setTexture('u_BaseColorSampler', cache.textures[pbr.baseColorTexture.index])
                 mat.setTexture('u_brdfLUT', cache.brdfLUT)
