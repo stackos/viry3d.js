@@ -1,4 +1,4 @@
-let url = require('url')
+const url = require('url')
 
 class Message {
   constructor(request, response) {

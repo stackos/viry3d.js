@@ -1,7 +1,11 @@
-let http = require('http')
-let Router = require('./Router')
-let Message = require('./Message')
-let controller = require('./controller')
+require('./Time')
+require('./Logger')
+const http = require('http')
+const Router = require('./Router')
+const Message = require('./Message')
+const controller = require('./controller')
+
+const TAG = 'Server'
 
 class Server {
   constructor() {
@@ -14,7 +18,7 @@ class Server {
       this.router.route(new Message(request, response))
     }).listen(port)
 
-    console.log('Server running at port ' + port)
+    Logger.log(TAG, 'Server running at port ' + port)
   }
 }
 

@@ -1,3 +1,5 @@
+const TAG = 'Router'
+
 class Router {
   constructor() {
     this.msgMap = new Map()
@@ -8,7 +10,7 @@ class Router {
   }
 
   route(msg) {
-    console.log('Routing ' + msg.path)
+    Logger.log(TAG, 'Routing ' + msg.path)
 
     const handler = this.msgMap.get(msg.path)
     if (handler) {
