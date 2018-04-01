@@ -9,12 +9,12 @@ class Router {
     this.msgMap.set(path, handler)
   }
 
-  route(msg) {
+  route(server, msg) {
     Logger.log(TAG, 'Routing ' + msg.path)
 
     const handler = this.msgMap.get(msg.path)
     if (handler) {
-      handler(msg)
+      handler(server, msg)
     } else {
       msg.endResponse()
     }
