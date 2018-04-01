@@ -1,11 +1,13 @@
-const url = require('url')
+const URL = require('url')
 
 class Message {
   constructor(request, response) {
     this.request = request
     this.response = response
-    this.path = url.parse(request.url).pathname
-    this.result = {}
+    const url = URL.parse(request.url, true)
+    this.path = url.pathname
+    this.query = url.query
+    this.result = { }
   }
 
   endResponse() {

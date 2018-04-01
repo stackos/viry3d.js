@@ -10,12 +10,11 @@ class Router {
   }
 
   route(server, msg) {
-    Logger.log(TAG, 'Routing ' + msg.path)
-
     const handler = this.msgMap.get(msg.path)
     if (handler) {
       handler(server, msg)
     } else {
+      Logger.log(TAG, 'Query path has no handler: ' + msg.path)
       msg.endResponse()
     }
   }

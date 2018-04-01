@@ -11,27 +11,17 @@ class DB {
     this.selectDB('wegame')
     this.query('CREATE TABLE IF NOT EXISTS user(\
       id INT NOT NULL AUTO_INCREMENT,\
-      name VARCHAR(100) NOT NULL,\
+      name VARCHAR(64) NOT NULL,\
+      password VARCHAR(64) NOT NULL,\
       create_date DATE,\
+      login_date DATE,\
       PRIMARY KEY (id)\
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;')
-
-    this.showTables()
-
-    this.query('SELECT * FROM user;', (error, results) => {
-      console.log(error, results)
-    })
   }
 
   selectDB(dbName) {
     this.query('CREATE DATABASE IF NOT EXISTS ' + dbName + ' DEFAULT CHARSET utf8 COLLATE utf8_general_ci;')
     this.query('USE ' + dbName + ';')
-  }
-
-  showTables() {
-    this.query('SHOW TABLES;', (error, results) => {
-      console.log(error, results)
-    })
   }
 
   query(sql, callback) {
