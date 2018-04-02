@@ -1,3 +1,5 @@
+const TAG = 'Register'
+
 // user: string
 // password: string
 module.exports = async (server, msg) => {
@@ -36,6 +38,8 @@ module.exports = async (server, msg) => {
                 desc: 'query failed',
               }
             } else {
+              Logger.log(TAG, `User ${user} register success`)
+
               msg.result = {
                 status: 0,
                 desc: 'ok',

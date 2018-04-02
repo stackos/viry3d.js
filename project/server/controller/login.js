@@ -1,3 +1,5 @@
+const TAG = 'Login'
+
 // user: string
 // password: string
 module.exports = async (server, msg) => {
@@ -29,6 +31,8 @@ module.exports = async (server, msg) => {
                 desc: 'query failed',
               }
             } else {
+              Logger.log(TAG, `User ${user} login success`)
+
               msg.result = {
                 status: 0,
                 desc: 'ok',
