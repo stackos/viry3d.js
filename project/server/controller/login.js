@@ -11,23 +11,34 @@ module.exports = async (server, msg) => {
           status: 2,
           desc: 'query failed',
         }
+
+        msg.endResponse()
       } else {
         if (results.length == 0) {
           msg.result = {
             status: 3,
             desc: 'user not exist or password error',
           }
-        } else {
-          console.log(results)
 
-          msg.result = {
-            status: 0,
-            desc: 'ok',
-          }
+          msg.endResponse()
+        } else {
+          server.db.query(`UPDATE user SET login_date = NOW() WHERE name='${user}';`, (error, results) => {
+            if (error) {
+              msg.result = {
+                status: 4,
+                desc: 'query failed',
+              }
+            } else {
+              msg.result = {
+                status: 0,
+                desc: 'ok',
+              }
+            }
+
+            msg.endResponse()
+          })
         }
       }
-
-      msg.endResponse()
     })
   } else {
     msg.result = {
