@@ -10,4 +10,4 @@ class Time {
   }
 }
 
-global.Time = Time
+module.exports = Time

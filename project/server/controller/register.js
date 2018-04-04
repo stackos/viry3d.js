@@ -1,3 +1,5 @@
+const Logger = require('../Logger')
+
 const TAG = 'Register'
 
 // user: string
@@ -38,7 +40,7 @@ module.exports = async (server, msg) => {
                 desc: 'query failed',
               }
             } else {
-              Logger.log(TAG, `User ${user} register success`)
+              Logger.Log(TAG, `User ${user} register success`)
 
               msg.result = {
                 status: 0,

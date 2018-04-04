@@ -1,6 +1,6 @@
 class Game {
   constructor() {
-
+    
   }
 }
 

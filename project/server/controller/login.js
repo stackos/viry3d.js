@@ -1,3 +1,5 @@
+const Logger = require('../Logger')
+
 const TAG = 'Login'
 
 // user: string
@@ -24,6 +26,8 @@ module.exports = async (server, msg) => {
 
           msg.endResponse()
         } else {
+          const id = results[0].id
+
           server.db.query(`UPDATE user SET login_date = NOW() WHERE name='${user}';`, (error, results) => {
             if (error) {
               msg.result = {
@@ -31,11 +35,12 @@ module.exports = async (server, msg) => {
                 desc: 'query failed',
               }
             } else {
-              Logger.log(TAG, `User ${user} login success`)
+              Logger.Log(TAG, `User ${user} login success`)
 
               msg.result = {
                 status: 0,
                 desc: 'ok',
+                token: server.newSession(id).getToken(),
               }
             }
 

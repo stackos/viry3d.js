@@ -1,3 +1,5 @@
+const Logger = require('./Logger')
+
 const TAG = 'Router'
 
 class Router {
@@ -14,7 +16,7 @@ class Router {
     if (handler) {
       handler(server, msg)
     } else {
-      Logger.log(TAG, 'Query path has no handler: ' + msg.path)
+      Logger.Log(TAG, 'Query path has no handler: ' + msg.path)
       msg.endResponse()
     }
   }

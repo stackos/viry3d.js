@@ -1,25 +1,31 @@
 const fs = require('fs')
+const Time = require('./Time')
 
 class Logger {
-  constructor() {
-    this.rl = null
+  static Init() {
+    Logger.rl = null
 
     if (fs.existsSync('logs') == false) {
       fs.mkdirSync('logs')
     }
-    this.file = fs.openSync('logs/log' + Time.NowString().replace(/:/g, '\'') + '.txt', 'w')
+    Logger.file = fs.openSync('logs/log' + Time.NowString().replace(/:/g, '\'') + '.txt', 'w')
   }
 
-  log(tag, str) {
+  static Release() {
+    fs.closeSync(Logger.file)
+    Logger.file = null
+  }
+
+  static Log(tag, str) {
     const log = Time.NowString() + '[' + tag + ']: ' + str
 
-    fs.writeSync(this.file, log + '\r\n', null, 'utf8')
+    fs.writeSync(Logger.file, log + '\r\n', null, 'utf8')
     console.log(log)
 
-    if (this.rl) {
-      this.rl.prompt()
+    if (Logger.rl) {
+      Logger.rl.prompt()
     }
   }
 }
 
-global.Logger = new Logger()
+module.exports = Logger
